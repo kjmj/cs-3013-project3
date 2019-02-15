@@ -1,0 +1,3 @@
+Once you have completed your solution, explain how your solution maximizes profits while not depriving one
+side or the other of the costume department. Your description should include the output
+of an example run and an analysis of your synchronization scheme in the context of that run.

@@ -25,6 +25,20 @@ int main(int argc, char **argv) {
     int avgPirateArrivalTime = atoi(argv[6]);
     int avgNinjaArrivalTime = atoi(argv[7]);
 
+    // make sure command line args fall within specified bounds
+    if(numCostumingTeams < 2 || numCostumingTeams > 4) {
+        printf("Please enter numCostumingTeams between [2, 4]\n");
+        return 1;
+    }
+    if(numPirates < 10 || numPirates > 50) {
+        printf("Please enter numPirates between [10, 50]\n");
+        return 1;
+    }
+    if(numNinjas < 10 || numNinjas > 50) {
+        printf("Please enter numPirates between [10, 50]\n");
+        return 1;
+    }
+
     // initialize our locks
     sem_init(&room.frontDoor, 0, 1);
     sem_init(&room.pirateDoor, 0, 0);
