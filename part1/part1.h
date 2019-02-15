@@ -19,10 +19,10 @@
  *
  * At the end of the day, you should calculate and print the itemized bills for both the pirates and the ninjas.
  * For each ninja/pirate you should list
- * - the number of visits
- * - the amount of time of each visit
- * - the wait times
- * - the total gold owed to the costume department.
+ *   - the number of visits
+ *   - the amount of time of each visit
+ *   - the wait times
+ *   - the total gold owed to the costume department.
  *
  * You also need to keep track of your own expenses profits.
  * Each costuming team costs 5 gold pieces per day to staff.
@@ -76,11 +76,14 @@ struct customer {
 
     // stat collection
     struct visit visits[MAX_VISITS]; // max 2 visits for a customer
+    int numVisits; // number of times the customer visited the shop
+    float totalGoldOwed;
 };
 
 void customer();
-long getCurrTimeInSeconds();
-void serveCustomer(int teamType, int custNum);
+double getCurrTimeInSeconds();
+void serveCustomer(int teamType, int custNum, int visitNum);
 float getRand();
+void printStats();
 
 #endif

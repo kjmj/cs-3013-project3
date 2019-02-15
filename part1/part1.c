@@ -13,6 +13,9 @@ struct customer customers[MAX_CUSTOMERS];
 struct costumeTeam costumeTeams[MAX_TEAMS];
 struct costumeDept room;
 
+int numPirates;
+int numNinjas;
+
 int main(int argc, char **argv) {
     if(argc != 8) {
         printf("Incorrect number of arguments. Usage: ./part1 numCostumingTeams numPirates numNinjas avgPirateCostumingTime avgNinjaCostumingTime avgPirateArrivalTime avgNinjaArrivalTime\n");
@@ -21,8 +24,8 @@ int main(int argc, char **argv) {
 
     // read in command line arguments
     int numCostumingTeams = atoi(argv[1]);
-    int numPirates = atoi(argv[2]);
-    int numNinjas = atoi(argv[3]);
+    numPirates = atoi(argv[2]);
+    numNinjas = atoi(argv[3]);
     int avgPirateCostumingTime = atoi(argv[4]);
     int avgNinjaCostumingTime = atoi(argv[5]);
     int avgPirateArrivalTime = atoi(argv[6]);
@@ -55,8 +58,8 @@ int main(int argc, char **argv) {
     room.waitingNinjas = 0;
 
     // seed drand48()
-    long t = getCurrTimeInSeconds();
-    printf("random value: %ld\n", t);
+    double t = getCurrTimeInSeconds();
+    printf("random value: %f\n", t);
     srand48(t);
 
     // setup costuming teams
@@ -71,12 +74,16 @@ int main(int argc, char **argv) {
             strcpy(customers[i].typeStr, "Pirate");
             customers[i].arrivalTime = avgPirateArrivalTime * getRand();
             customers[i].costumingTime = avgPirateCostumingTime * getRand();
+            customers[i].numVisits = 0;
+            customers[i].totalGoldOwed = 0;
         }
         else { // ninjas
             customers[i].type = NINJA;
             strcpy(customers[i].typeStr, "Ninja");
             customers[i].arrivalTime = avgNinjaArrivalTime * getRand();
             customers[i].costumingTime = avgNinjaCostumingTime * getRand();
+            customers[i].numVisits = 0;
+            customers[i].totalGoldOwed = 0;
         }
         pthread_create(&customerThreads[i], NULL, (void *) &customer, (void *) i);
     }
@@ -85,6 +92,9 @@ int main(int argc, char **argv) {
     for (int i = 0; i < (numPirates + numNinjas); i++) {
         pthread_join(customerThreads[i], NULL);
     }
+
+    // print the stats
+    printStats();
 
     return 0;
 }
@@ -99,7 +109,8 @@ void customer(void *custNumPtr) {
 
     int custNum = (int) custNumPtr;
     int done = 0;
-    int visitNum = 1;
+    double startTime = 0; // time when the customer arrives at the shop
+    int p = 0; // counter for the loop
 
     sem_post(&room.frontDoor);
 
@@ -107,15 +118,23 @@ void customer(void *custNumPtr) {
         // wait for a customer to arrive
         sleep(customers[custNum].arrivalTime);
 
+        // update their stats
+        customers[custNum].numVisits++;
+        startTime = getCurrTimeInSeconds();
+
         // serve the customer
-        serveCustomer(customers[custNum].type, custNum);
+        serveCustomer(customers[custNum].type, custNum, p);
 
         sem_wait(&room.frontDoor);
 
+        // update their stats after the visit
+        customers[custNum].visits[p].visitNum = customers[custNum].numVisits;
+        customers[custNum].visits[p].visitTime = getCurrTimeInSeconds() - startTime;
+
         // decide if this customer will return
-        if(drand48() <= .25 && visitNum == 1) {
+        if(drand48() <= .25 && customers[custNum].numVisits == 1) {
             printf("Returning: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
-            visitNum++;
+            p++;
         } else {
             done = 1;
         }
@@ -129,10 +148,11 @@ void customer(void *custNumPtr) {
  * @param type
  * @param custNum
  */
-void serveCustomer(int type, int custNum) {
+void serveCustomer(int type, int custNum, int visitNum) {
     sem_wait(&room.frontDoor);
 
     printf("Arrived: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
+    double arrivalTime = getCurrTimeInSeconds();
 
     // We now have one more waiting customer
     if(customers[custNum].type == PIRATE) {
@@ -167,6 +187,9 @@ void serveCustomer(int type, int custNum) {
         room.waitingPirates--;
         printf("Costuming: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
 
+        // update the customers stats
+        customers[custNum].visits[visitNum].waitTime = getCurrTimeInSeconds() - arrivalTime;
+
         sem_post(&room.frontDoor);
 
         // costume this customer
@@ -176,6 +199,10 @@ void serveCustomer(int type, int custNum) {
 
         printf("Done Costuming: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
         room.numCustomers--;
+
+        // update the customers stats
+        customers[custNum].visits[visitNum].goldOwed = customers[custNum].visits[visitNum].waitTime + customers[custNum].costumingTime;
+        customers[custNum].totalGoldOwed = customers[custNum].totalGoldOwed + customers[custNum].visits[visitNum].goldOwed;
 
         // decide which customer to serve next
         if(room.numCustomers < room.numTeams) { // there must be room for the customer
@@ -206,6 +233,9 @@ void serveCustomer(int type, int custNum) {
         room.waitingNinjas--;
         printf("Costuming: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
 
+        // update the customers stats
+        customers[custNum].visits[visitNum].waitTime = getCurrTimeInSeconds() - arrivalTime;
+
         sem_post(&room.frontDoor);
 
         // costume this customer
@@ -215,6 +245,10 @@ void serveCustomer(int type, int custNum) {
 
         printf("Done Costuming: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
         room.numCustomers--;
+
+        // update the customers stats
+        customers[custNum].visits[visitNum].goldOwed = customers[custNum].visits[visitNum].waitTime + customers[custNum].costumingTime;
+        customers[custNum].totalGoldOwed = customers[custNum].totalGoldOwed + customers[custNum].visits[visitNum].goldOwed;
 
         // decide which customer to serve next
         if(room.numCustomers < room.numTeams) { // there must be room for the customer
@@ -245,8 +279,30 @@ float getRand() {
  * Get the current time, in seconds
  * @return
  */
-long getCurrTimeInSeconds() {
+double getCurrTimeInSeconds() {
     struct timeval t;
     gettimeofday(&t, NULL);
-    return t.tv_sec;
+    return t.tv_sec + (1.0/1000000) * t.tv_usec;
+}
+
+void printStats() {
+
+
+    // print stats for each customer
+    printf("\n===================\n");
+    printf("Customer Statistics\n");
+    printf("===================\n\n");
+
+    for(int i = 0; i < (numPirates + numNinjas); i++) {
+        printf("Customer #%d (%s) Number of Visits: %d\n", i, customers[i].typeStr, customers[i].numVisits);
+        for(int j = 0; j < customers[i].numVisits; j++) {
+            printf("Customer #%d (%s) Visit Number: %d\n", i, customers[i].typeStr, j + 1);
+            printf("Customer #%d (%s) Visit Length: %f\n", i, customers[i].typeStr, customers[i].visits[j].visitTime);
+            printf("Customer #%d (%s) Wait Time: %f\n", i, customers[i].typeStr, customers[i].visits[j].waitTime);
+        }
+        printf("Customer #%d (%s) Total Gold Owed: %f\n", i, customers[i].typeStr, customers[i].totalGoldOwed);
+        printf("===================\n");
+    }
+
+
 }
