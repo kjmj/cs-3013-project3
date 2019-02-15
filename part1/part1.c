@@ -1,14 +1,17 @@
 #include "part1.h"
 
-pthread_t customerThreads[100];
-
-struct customer customers[100];
-struct costumeTeam costumeTeams[4];
-struct costumeDept room;
-
 #define EMPTY 0
 #define PIRATE 1
 #define NINJA 2
+
+#define MAX_CUSTOMERS 100
+#define MAX_TEAMS 4
+
+pthread_t customerThreads[MAX_CUSTOMERS];
+
+struct customer customers[MAX_CUSTOMERS];
+struct costumeTeam costumeTeams[MAX_TEAMS];
+struct costumeDept room;
 
 int main(int argc, char **argv) {
     if(argc != 8) {

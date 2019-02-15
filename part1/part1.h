@@ -35,10 +35,12 @@
  * - your total profits.
  */
 
+#define MAX_VISITS 2
+
 struct costumeTeam {
     int teamNum;
-    float busyTime; // amount of time this team was busy
-    float freeTime; // amount of time this team was free
+    float timeBusy; // amount of time this team was busy
+    float timeFree; // amount of time this team was free
 };
 
 struct costumeDept {
@@ -50,6 +52,20 @@ struct costumeDept {
     sem_t frontDoor; // general lock for the front door
     sem_t ninjaDoor; // lock for the ninjas
     sem_t pirateDoor; // lock for the pirates
+
+    // stat collection
+    struct costumeTeam costumeTeam;
+    float avgQueueLength;
+    int grossRevenue;
+    float goldPerVisit; // amount of gold divided by number of visits
+    float totalProfits; // total profits for the costume dept
+};
+
+struct visit {
+    int visitNum;
+    float visitTime; // amount of time for this visit
+    float waitTime; // how long the customer waited
+    float goldOwed; // how much gold the customer owes
 };
 
 struct customer {
@@ -57,9 +73,10 @@ struct customer {
     char typeStr[10]; // pirate or ninja as a string
     float arrivalTime; // how long until the customer arrives
     float costumingTime; // how long does it take to costume this customer
+
+    // stat collection
+    struct visit visits[MAX_VISITS]; // max 2 visits for a customer
 };
-
-
 
 void customer();
 long getCurrTimeInSeconds();
