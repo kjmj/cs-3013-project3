@@ -9,12 +9,19 @@
 
 pthread_t customerThreads[MAX_CUSTOMERS];
 
+pthread_t queueLengthChecker;
+float totalInQueue = 0;
+float numTimesChecked = 0;
+
 struct customer customers[MAX_CUSTOMERS];
-struct costumeTeam costumeTeams[MAX_TEAMS];
 struct costumeDept room;
 
 int numPirates;
 int numNinjas;
+int queueLength = 0;
+
+double teamBusyTime = 0;
+double teamFreeTime = 0;
 
 int main(int argc, char **argv) {
     if(argc != 8) {
@@ -32,7 +39,7 @@ int main(int argc, char **argv) {
     int avgNinjaArrivalTime = atoi(argv[7]);
 
     // make sure command line args fall within specified bounds
-    if(numCostumingTeams < 2 || numCostumingTeams > 4) {
+    if(numCostumingTeams < MIN_COSTUME_TEAMS || numCostumingTeams > MAX_COSTUME_TEAMS) {
         printf("Please enter numCostumingTeams between [2, 4]\n");
         return 1;
     }
@@ -62,11 +69,7 @@ int main(int argc, char **argv) {
     printf("random value: %f\n", t);
     srand48(t);
 
-    // setup costuming teams
-    for (int i = 0; i < numCostumingTeams; i++) {
-        costumeTeams[i].teamNum = i;
-    }
-
+    pthread_create(&queueLengthChecker, NULL, (void *) &queueChecker, NULL);
     // create threads for pirate and ninja
     for (int i = 0; i < (numPirates + numNinjas); i++) {
         if (i < numPirates) { // pirates
@@ -92,6 +95,8 @@ int main(int argc, char **argv) {
     for (int i = 0; i < (numPirates + numNinjas); i++) {
         pthread_join(customerThreads[i], NULL);
     }
+
+    pthread_join(queueLengthChecker, NULL);
 
     // print the stats
     printStats();
@@ -126,7 +131,6 @@ void customer(void *custNumPtr) {
         serveCustomer(customers[custNum].type, custNum, p);
 
         sem_wait(&room.frontDoor);
-
         // update their stats after the visit
         customers[custNum].visits[p].visitNum = customers[custNum].numVisits;
         customers[custNum].visits[p].visitTime = getCurrTimeInSeconds() - startTime;
@@ -183,12 +187,18 @@ void serveCustomer(int type, int custNum, int visitNum) {
             sem_wait(&room.frontDoor);
         }
 
+        int freeTimeStart = getCurrTimeInSeconds();
+
         room.numCustomers++;
         room.waitingPirates--;
         printf("Costuming: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
 
         // update the customers stats
         customers[custNum].visits[visitNum].waitTime = getCurrTimeInSeconds() - arrivalTime;
+
+        // a team is busy
+        teamFreeTime = teamFreeTime + getCurrTimeInSeconds() - freeTimeStart;
+        int busyTimeStart = getCurrTimeInSeconds();
 
         sem_post(&room.frontDoor);
 
@@ -203,6 +213,9 @@ void serveCustomer(int type, int custNum, int visitNum) {
         // update the customers stats
         customers[custNum].visits[visitNum].goldOwed = customers[custNum].visits[visitNum].waitTime + customers[custNum].costumingTime;
         customers[custNum].totalGoldOwed = customers[custNum].totalGoldOwed + customers[custNum].visits[visitNum].goldOwed;
+
+        // the team is no longer busy
+        teamBusyTime = teamBusyTime + getCurrTimeInSeconds() - busyTimeStart;
 
         // decide which customer to serve next
         if(room.numCustomers < room.numTeams) { // there must be room for the customer
@@ -228,6 +241,7 @@ void serveCustomer(int type, int custNum, int visitNum) {
             sem_wait(&room.ninjaDoor);
             sem_wait(&room.frontDoor);
         }
+        int freeTimeStart = getCurrTimeInSeconds();
 
         room.numCustomers++;
         room.waitingNinjas--;
@@ -235,6 +249,10 @@ void serveCustomer(int type, int custNum, int visitNum) {
 
         // update the customers stats
         customers[custNum].visits[visitNum].waitTime = getCurrTimeInSeconds() - arrivalTime;
+
+        // a team is now busy
+        teamFreeTime = teamFreeTime + getCurrTimeInSeconds() - freeTimeStart;
+        int busyTimeStart = getCurrTimeInSeconds();
 
         sem_post(&room.frontDoor);
 
@@ -249,6 +267,9 @@ void serveCustomer(int type, int custNum, int visitNum) {
         // update the customers stats
         customers[custNum].visits[visitNum].goldOwed = customers[custNum].visits[visitNum].waitTime + customers[custNum].costumingTime;
         customers[custNum].totalGoldOwed = customers[custNum].totalGoldOwed + customers[custNum].visits[visitNum].goldOwed;
+
+        // the team is no longer busy
+        teamBusyTime = teamBusyTime + getCurrTimeInSeconds() - busyTimeStart;
 
         // decide which customer to serve next
         if(room.numCustomers < room.numTeams) { // there must be room for the customer
@@ -265,6 +286,19 @@ void serveCustomer(int type, int custNum, int visitNum) {
 
         sem_post(&room.frontDoor);
     }
+}
+
+/**
+ * check the queue every so often and gather stats about the average number of customers
+ * in the queue
+ */
+void queueChecker() {
+    sleep(1);
+
+    sem_wait(&room.frontDoor);
+    totalInQueue = totalInQueue + (room.waitingNinjas + room.waitingPirates);
+    numTimesChecked++;
+    sem_post(&room.frontDoor);
 }
 
 /**
@@ -287,6 +321,8 @@ double getCurrTimeInSeconds() {
 
 void printStats() {
 
+    float grossRevenue = 0;
+    int numVisits = 0;
 
     // print stats for each customer
     printf("\n===================\n");
@@ -299,10 +335,27 @@ void printStats() {
             printf("Customer #%d (%s) Visit Number: %d\n", i, customers[i].typeStr, j + 1);
             printf("Customer #%d (%s) Visit Length: %f\n", i, customers[i].typeStr, customers[i].visits[j].visitTime);
             printf("Customer #%d (%s) Wait Time: %f\n", i, customers[i].typeStr, customers[i].visits[j].waitTime);
+            numVisits++;
         }
         printf("Customer #%d (%s) Total Gold Owed: %f\n", i, customers[i].typeStr, customers[i].totalGoldOwed);
-        printf("===================\n");
+        grossRevenue = grossRevenue + customers[i].totalGoldOwed;
+
+        // formatting
+        if(i < (numPirates + numNinjas) - 1) {
+            printf("===================\n");
+        }
     }
 
+    // print shop stats
+    printf("\n===================\n");
+    printf("  Shop Statistics\n");
+    printf("===================\n\n");
+
+    printf("Time that teams were busy: %f\n", teamBusyTime);
+    printf("Time that teams were free: %f\n", teamFreeTime);
+    printf("Average Queue Length: %f\n", totalInQueue / numTimesChecked);
+    printf("Gross Revenue: %f\n", grossRevenue);
+    printf("Gold Per Visit: %f\n", grossRevenue / numVisits);
+    printf("Total Profit: %f\n", grossRevenue - (room.numTeams * 5)); // it costs 5 gold per day to staff a team
 
 }
