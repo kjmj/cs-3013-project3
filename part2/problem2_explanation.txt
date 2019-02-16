@@ -5,13 +5,12 @@ describe the way this intersection is controlled.
 In what ways is this method suboptimal?
 
 ----- Answer Phase 1 -----
-The way the intersection is controlled is serialization.
-In the simplest model, computers execute one instruction after another in sequence. In this model,
-synchronization is trivial; we can tell the order of events by looking at the program. If Statement
-A comes before Statement B, it will be executed first. This method is suboptimal because it does
-not improve the traffic in the most efficient way, thus not enough parallelism for muti-thread
-programming.
-
+In this situation, we can observe that parallelism is not allowed. As a driver
+approaches and enters an intersection, they prevent all other drivers from entering
+the intersection. This occurs because they grab the mutex, and only release it after they
+leave the intersection. This method does not optimize parallelism, and only allows
+1 customer to be in the intersection at once. There is alot we can to do make sure that
+multiple cars can be in the intersection at once, all while ensuring accidents do not occur.
 
 
 ----- Question Phase 2-----
@@ -22,11 +21,14 @@ be helpful to think of this in terms of the model we are using instead of trying
 How can such a deadlock be prevented?
 
 ----- Answer Phase 2 -----
-The deadlock can occur in situations like if four cars trying to go straight and all acquire the first
-block of intersection they need, then this is a deadlock. They all take some resource and waits on some
-other resources. The deadlock can be prevented by preventing any of the four required condition for deadlock
-to occur. In my implementation, I used hierarchy for locks to prevent circular waits.
-
+In this situation, massachusetts drivers are happy to enter the intersection even with cars in it.
+This can lead to some complications. For example, a deadlock would occur if 4 drivers from the
+N, E, S, and W directions all enter the intersection at the same time and try to take a left turn.
+They all want to move, but cannot, and are thus in a deadlock. To prevent this case, we
+introduced a hierarchy for locks. This ensures that circular waits are avoided. If a car
+wants to make a left, and there is only one open slot, just wait until a car clears
+from its quadrant, and it is good to enter the intersection. Our strategy to avoid this case,
+as well as to maximize parallelism and increase traffic flow is described below.
 
 
 ----- How our solution meets the requirements -----
