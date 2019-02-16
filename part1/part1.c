@@ -9,19 +9,21 @@
 
 pthread_t customerThreads[MAX_CUSTOMERS];
 
+// for tracking the avg queue length statistics
 pthread_t queueLengthChecker;
 float totalInQueue = 0;
 float numTimesChecked = 0;
 
+// for storing customers
 struct customer customers[MAX_CUSTOMERS];
+
+// this is our room that pirates and ninjas go to get costumed
 struct costumeDept room;
 
+// number of pirates and ninjas in the simulation
 int numPirates;
 int numNinjas;
-int queueLength = 0;
 
-double teamBusyTime = 0;
-double teamFreeTime = 0;
 
 int main(int argc, char **argv) {
     if(argc != 8) {
@@ -30,7 +32,7 @@ int main(int argc, char **argv) {
     }
 
     // read in command line arguments
-    int numCostumingTeams = atoi(argv[1]);
+    int numCostumingTeams = 4;//atoi(argv[1]);
     numPirates = atoi(argv[2]);
     numNinjas = atoi(argv[3]);
     int avgPirateCostumingTime = atoi(argv[4]);
@@ -63,11 +65,11 @@ int main(int argc, char **argv) {
     room.numCustomers = 0;
     room.waitingPirates = 0;
     room.waitingNinjas = 0;
+    room.teamBusyTime = 0;
+    room.teamFreeTime = 0;
 
     // seed drand48()
-    double t = getCurrTimeInSeconds();
-    printf("random value: %f\n", t);
-    srand48(t);
+    srand48(getCurrTimeInSeconds());
 
     pthread_create(&queueLengthChecker, NULL, (void *) &queueChecker, NULL);
     // create threads for pirate and ninja
@@ -137,7 +139,7 @@ void customer(void *custNumPtr) {
 
         // decide if this customer will return
         if(drand48() <= .25 && customers[custNum].numVisits == 1) {
-            printf("Returning: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
+            printf("Returning soon: Customer #%d (%s)\n", custNum, customers[custNum].typeStr);
             p++;
         } else {
             done = 1;
@@ -197,7 +199,7 @@ void serveCustomer(int type, int custNum, int visitNum) {
         customers[custNum].visits[visitNum].waitTime = getCurrTimeInSeconds() - arrivalTime;
 
         // a team is busy
-        teamFreeTime = teamFreeTime + getCurrTimeInSeconds() - freeTimeStart;
+        room.teamFreeTime = room.teamFreeTime + getCurrTimeInSeconds() - freeTimeStart;
         int busyTimeStart = getCurrTimeInSeconds();
 
         sem_post(&room.frontDoor);
@@ -215,7 +217,7 @@ void serveCustomer(int type, int custNum, int visitNum) {
         customers[custNum].totalGoldOwed = customers[custNum].totalGoldOwed + customers[custNum].visits[visitNum].goldOwed;
 
         // the team is no longer busy
-        teamBusyTime = teamBusyTime + getCurrTimeInSeconds() - busyTimeStart;
+        room.teamBusyTime = room.teamBusyTime + getCurrTimeInSeconds() - busyTimeStart;
 
         // decide which customer to serve next
         if(room.numCustomers < room.numTeams) { // there must be room for the customer
@@ -251,7 +253,7 @@ void serveCustomer(int type, int custNum, int visitNum) {
         customers[custNum].visits[visitNum].waitTime = getCurrTimeInSeconds() - arrivalTime;
 
         // a team is now busy
-        teamFreeTime = teamFreeTime + getCurrTimeInSeconds() - freeTimeStart;
+        room.teamFreeTime = room.teamFreeTime + getCurrTimeInSeconds() - freeTimeStart;
         int busyTimeStart = getCurrTimeInSeconds();
 
         sem_post(&room.frontDoor);
@@ -269,7 +271,7 @@ void serveCustomer(int type, int custNum, int visitNum) {
         customers[custNum].totalGoldOwed = customers[custNum].totalGoldOwed + customers[custNum].visits[visitNum].goldOwed;
 
         // the team is no longer busy
-        teamBusyTime = teamBusyTime + getCurrTimeInSeconds() - busyTimeStart;
+        room.teamBusyTime = room.teamBusyTime + getCurrTimeInSeconds() - busyTimeStart;
 
         // decide which customer to serve next
         if(room.numCustomers < room.numTeams) { // there must be room for the customer
@@ -289,7 +291,7 @@ void serveCustomer(int type, int custNum, int visitNum) {
 }
 
 /**
- * check the queue every so often and gather stats about the average number of customers
+ * check the queue every second and gather stats about the average number of customers
  * in the queue
  */
 void queueChecker() {
@@ -319,6 +321,9 @@ double getCurrTimeInSeconds() {
     return t.tv_sec + (1.0/1000000) * t.tv_usec;
 }
 
+/**
+ * print stats about the costume shop after everyone has been served
+ */
 void printStats() {
 
     float grossRevenue = 0;
@@ -351,8 +356,8 @@ void printStats() {
     printf("  Shop Statistics\n");
     printf("===================\n\n");
 
-    printf("Time that teams were busy: %f\n", teamBusyTime);
-    printf("Time that teams were free: %f\n", teamFreeTime);
+    printf("Time that teams were busy: %f\n", room.teamBusyTime);
+    printf("Time that teams were free: %f\n", room.teamFreeTime);
     printf("Average Queue Length: %f\n", totalInQueue / numTimesChecked);
     printf("Gross Revenue: %f\n", grossRevenue);
     printf("Gold Per Visit: %f\n", grossRevenue / numVisits);

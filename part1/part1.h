@@ -31,6 +31,8 @@ struct costumeDept {
     int grossRevenue;
     float goldPerVisit; // amount of gold divided by number of visits
     float totalProfits; // total profits for the costume dept
+    double teamBusyTime; // how long were teams busy for
+    double teamFreeTime; // how long were teams free for
 };
 
 struct visit {

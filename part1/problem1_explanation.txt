@@ -1,3 +1,1934 @@
+----- Question -----
 Once you have completed your solution, explain how your solution maximizes profits while not depriving one
 side or the other of the costume department. Your description should include the output
 of an example run and an analysis of your synchronization scheme in the context of that run.
+
+----- Answer -----
+This solution maximizes profits by costuming as many pirates or ninjas as it can at a time. It also avoids depriving
+the other type by switching to the other type when the shop has finished serving a variable number of customers. Thus,
+both types get an even amount of time in the costume shop. Additionally, the shop provides synchronization by serving
+only 1 type at a time. In other words, the costume shop will only be costuming either ninjas or pirates at the
+same time. Pirates and ninjas enter and exit through different doors, and this is how we provide mutual exclusion.
+
+----- Sample Runs -----
+I provided 5 sample runs, each with different input to test the program thoroughly. Each one has an explanation as to why
+the costume shop is efficient and synchronized. Scroll down to see the sample runs.
+
+----- Executive Summary of Sample Runs -----
+Sample Run #1: Long arrival times, teams busy  77% of the time (lower bc they have nobody to serve bc of high arrival time)
+Sample Run #2: Long costuming times, teams busy 90% of the time
+Sample Run #3: Alot of pirates and ninjas, teams busy 92% of the time
+
+----- Sample Run #1 -----
+Here is a sample run with an longer costume time. Notice how we try to costume as many of them as possible at a time.
+The teams were busy for 85.331349 seconds, and free for 25.300946 seconds. This ratio, 77%, is higher because of the large
+arrival time of customers. The teams finish costuming people and nobody else has arrived to be costumed, thus, they wait.
+The other tests with lower arrival times show that teams average being busy around 90% of the time.
+
+    kenneth@kenneth-VirtualBox:~/Documents/cs3103/cs3013-project3/part1$ ./part1 4 11 15 3 2 5 8
+    Arrived: Customer #4 (Pirate)
+    Costuming: Customer #4 (Pirate)
+    Arrived: Customer #8 (Pirate)
+    Costuming: Customer #8 (Pirate)
+    Done Costuming: Customer #4 (Pirate)
+    Returning: Customer #4 (Pirate)
+    Arrived: Customer #4 (Pirate)
+    Costuming: Customer #4 (Pirate)
+    Arrived: Customer #2 (Pirate)
+    Costuming: Customer #2 (Pirate)
+    Done Costuming: Customer #4 (Pirate)
+    Arrived: Customer #15 (Ninja)
+    Arrived: Customer #22 (Ninja)
+    Arrived: Customer #23 (Ninja)
+    Arrived: Customer #18 (Ninja)
+    Arrived: Customer #20 (Ninja)
+    Arrived: Customer #25 (Ninja)
+    Arrived: Customer #12 (Ninja)
+    Arrived: Customer #7 (Pirate)
+    Costuming: Customer #7 (Pirate)
+    Arrived: Customer #16 (Ninja)
+    Arrived: Customer #11 (Ninja)
+    Done Costuming: Customer #8 (Pirate)
+    Done Costuming: Customer #7 (Pirate)
+    Arrived: Customer #6 (Pirate)
+    Costuming: Customer #6 (Pirate)
+    Arrived: Customer #3 (Pirate)
+    Costuming: Customer #3 (Pirate)
+    Done Costuming: Customer #3 (Pirate)
+    Done Costuming: Customer #2 (Pirate)
+    Returning: Customer #2 (Pirate)
+    Arrived: Customer #10 (Pirate)
+    Costuming: Customer #10 (Pirate)
+    Arrived: Customer #1 (Pirate)
+    Costuming: Customer #1 (Pirate)
+    Arrived: Customer #0 (Pirate)
+    Costuming: Customer #0 (Pirate)
+    Arrived: Customer #5 (Pirate)
+    Done Costuming: Customer #0 (Pirate)
+    Arrived: Customer #9 (Pirate)
+    Costuming: Customer #9 (Pirate)
+    Arrived: Customer #2 (Pirate)
+    Done Costuming: Customer #10 (Pirate)
+    Done Costuming: Customer #1 (Pirate)
+    Returning: Customer #1 (Pirate)
+    Arrived: Customer #21 (Ninja)
+    Arrived: Customer #24 (Ninja)
+    Arrived: Customer #19 (Ninja)
+    Done Costuming: Customer #6 (Pirate)
+    Arrived: Customer #14 (Ninja)
+    Arrived: Customer #13 (Ninja)
+    Done Costuming: Customer #9 (Pirate)
+    Costuming: Customer #15 (Ninja)
+    Done Costuming: Customer #15 (Ninja)
+    Costuming: Customer #5 (Pirate)
+    Arrived: Customer #17 (Ninja)
+    Done Costuming: Customer #5 (Pirate)
+    Costuming: Customer #22 (Ninja)
+    Arrived: Customer #1 (Pirate)
+    Done Costuming: Customer #22 (Ninja)
+    Costuming: Customer #2 (Pirate)
+    Done Costuming: Customer #2 (Pirate)
+    Costuming: Customer #23 (Ninja)
+    Done Costuming: Customer #23 (Ninja)
+    Costuming: Customer #1 (Pirate)
+    Done Costuming: Customer #1 (Pirate)
+    Costuming: Customer #18 (Ninja)
+    Done Costuming: Customer #18 (Ninja)
+    Costuming: Customer #20 (Ninja)
+    Done Costuming: Customer #20 (Ninja)
+    Costuming: Customer #25 (Ninja)
+    Done Costuming: Customer #25 (Ninja)
+    Costuming: Customer #12 (Ninja)
+    Done Costuming: Customer #12 (Ninja)
+    Returning: Customer #12 (Ninja)
+    Costuming: Customer #16 (Ninja)
+    Done Costuming: Customer #16 (Ninja)
+    Costuming: Customer #11 (Ninja)
+    Done Costuming: Customer #11 (Ninja)
+    Returning: Customer #11 (Ninja)
+    Costuming: Customer #21 (Ninja)
+    Done Costuming: Customer #21 (Ninja)
+    Costuming: Customer #24 (Ninja)
+    Arrived: Customer #12 (Ninja)
+    Costuming: Customer #12 (Ninja)
+    Done Costuming: Customer #12 (Ninja)
+    Costuming: Customer #19 (Ninja)
+    Done Costuming: Customer #24 (Ninja)
+    Returning: Customer #24 (Ninja)
+    Costuming: Customer #14 (Ninja)
+    Done Costuming: Customer #14 (Ninja)
+    Returning: Customer #14 (Ninja)
+    Costuming: Customer #13 (Ninja)
+    Done Costuming: Customer #19 (Ninja)
+    Costuming: Customer #17 (Ninja)
+    Done Costuming: Customer #13 (Ninja)
+    Arrived: Customer #11 (Ninja)
+    Costuming: Customer #11 (Ninja)
+    Done Costuming: Customer #17 (Ninja)
+    Done Costuming: Customer #11 (Ninja)
+    Arrived: Customer #24 (Ninja)
+    Costuming: Customer #24 (Ninja)
+    Arrived: Customer #14 (Ninja)
+    Costuming: Customer #14 (Ninja)
+    Done Costuming: Customer #24 (Ninja)
+    Done Costuming: Customer #14 (Ninja)
+
+    ===================
+    Customer Statistics
+    ===================
+
+    Customer #0 (Pirate) Number of Visits: 1
+    Customer #0 (Pirate) Visit Number: 1
+    Customer #0 (Pirate) Visit Length: 1.001013
+    Customer #0 (Pirate) Wait Time: 0.000002
+    Customer #0 (Pirate) Total Gold Owed: 1.453633
+    ===================
+    Customer #1 (Pirate) Number of Visits: 2
+    Customer #1 (Pirate) Visit Number: 1
+    Customer #1 (Pirate) Visit Length: 2.006449
+    Customer #1 (Pirate) Wait Time: 0.000004
+    Customer #1 (Pirate) Visit Number: 2
+    Customer #1 (Pirate) Visit Length: 8.999623
+    Customer #1 (Pirate) Wait Time: 6.998518
+    Customer #1 (Pirate) Total Gold Owed: 11.493317
+    ===================
+    Customer #2 (Pirate) Number of Visits: 2
+    Customer #2 (Pirate) Visit Number: 1
+    Customer #2 (Pirate) Visit Length: 5.006237
+    Customer #2 (Pirate) Wait Time: 0.000003
+    Customer #2 (Pirate) Visit Number: 2
+    Customer #2 (Pirate) Visit Length: 15.998192
+    Customer #2 (Pirate) Wait Time: 10.995017
+    Customer #2 (Pirate) Total Gold Owed: 22.930599
+    ===================
+    Customer #3 (Pirate) Number of Visits: 1
+    Customer #3 (Pirate) Visit Number: 1
+    Customer #3 (Pirate) Visit Length: 0.000313
+    Customer #3 (Pirate) Wait Time: 0.000002
+    Customer #3 (Pirate) Total Gold Owed: 0.206306
+    ===================
+    Customer #4 (Pirate) Number of Visits: 2
+    Customer #4 (Pirate) Visit Number: 1
+    Customer #4 (Pirate) Visit Length: 1.000148
+    Customer #4 (Pirate) Wait Time: 0.000002
+    Customer #4 (Pirate) Visit Number: 2
+    Customer #4 (Pirate) Visit Length: 1.000722
+    Customer #4 (Pirate) Wait Time: 0.000002
+    Customer #4 (Pirate) Total Gold Owed: 2.974474
+    ===================
+    Customer #5 (Pirate) Number of Visits: 1
+    Customer #5 (Pirate) Visit Number: 1
+    Customer #5 (Pirate) Visit Length: 9.001885
+    Customer #5 (Pirate) Wait Time: 5.001696
+    Customer #5 (Pirate) Total Gold Owed: 9.784298
+    ===================
+    Customer #6 (Pirate) Number of Visits: 1
+    Customer #6 (Pirate) Visit Number: 1
+    Customer #6 (Pirate) Visit Length: 5.000975
+    Customer #6 (Pirate) Wait Time: 0.000024
+    Customer #6 (Pirate) Total Gold Owed: 5.730608
+    ===================
+    Customer #7 (Pirate) Number of Visits: 1
+    Customer #7 (Pirate) Visit Number: 1
+    Customer #7 (Pirate) Visit Length: 1.000539
+    Customer #7 (Pirate) Wait Time: 0.000003
+    Customer #7 (Pirate) Total Gold Owed: 1.200273
+    ===================
+    Customer #8 (Pirate) Number of Visits: 1
+    Customer #8 (Pirate) Visit Number: 1
+    Customer #8 (Pirate) Visit Length: 4.000377
+    Customer #8 (Pirate) Wait Time: 0.000006
+    Customer #8 (Pirate) Total Gold Owed: 4.558903
+    ===================
+    Customer #9 (Pirate) Number of Visits: 1
+    Customer #9 (Pirate) Visit Number: 1
+    Customer #9 (Pirate) Visit Length: 4.000407
+    Customer #9 (Pirate) Wait Time: 0.000115
+    Customer #9 (Pirate) Total Gold Owed: 4.571748
+    ===================
+    Customer #10 (Pirate) Number of Visits: 1
+    Customer #10 (Pirate) Visit Number: 1
+    Customer #10 (Pirate) Visit Length: 2.001336
+    Customer #10 (Pirate) Wait Time: 0.000004
+    Customer #10 (Pirate) Total Gold Owed: 2.440090
+    ===================
+    Customer #11 (Ninja) Number of Visits: 2
+    Customer #11 (Ninja) Visit Number: 1
+    Customer #11 (Ninja) Visit Length: 31.009558
+    Customer #11 (Ninja) Wait Time: 29.009077
+    Customer #11 (Ninja) Visit Number: 2
+    Customer #11 (Ninja) Visit Length: 2.000445
+    Customer #11 (Ninja) Wait Time: 0.000004
+    Customer #11 (Ninja) Total Gold Owed: 34.776230
+    ===================
+    Customer #12 (Ninja) Number of Visits: 2
+    Customer #12 (Ninja) Visit Number: 1
+    Customer #12 (Ninja) Visit Length: 29.006968
+    Customer #12 (Ninja) Wait Time: 29.006638
+    Customer #12 (Ninja) Visit Number: 2
+    Customer #12 (Ninja) Visit Length: 0.000058
+    Customer #12 (Ninja) Wait Time: 0.000002
+    Customer #12 (Ninja) Total Gold Owed: 30.989565
+    ===================
+    Customer #13 (Ninja) Number of Visits: 1
+    Customer #13 (Ninja) Visit Number: 1
+    Customer #13 (Ninja) Visit Length: 27.012537
+    Customer #13 (Ninja) Wait Time: 26.011965
+    Customer #13 (Ninja) Total Gold Owed: 27.054476
+    ===================
+    Customer #14 (Ninja) Number of Visits: 2
+    Customer #14 (Ninja) Visit Number: 1
+    Customer #14 (Ninja) Visit Length: 26.012012
+    Customer #14 (Ninja) Wait Time: 26.011471
+    Customer #14 (Ninja) Visit Number: 2
+    Customer #14 (Ninja) Visit Length: 0.000688
+    Customer #14 (Ninja) Wait Time: 0.000004
+    Customer #14 (Ninja) Total Gold Owed: 27.589455
+    ===================
+    Customer #15 (Ninja) Number of Visits: 1
+    Customer #15 (Ninja) Visit Number: 1
+    Customer #15 (Ninja) Visit Length: 9.997552
+    Customer #15 (Ninja) Wait Time: 9.997233
+    Customer #15 (Ninja) Total Gold Owed: 10.899336
+    ===================
+    Customer #16 (Ninja) Number of Visits: 1
+    Customer #16 (Ninja) Visit Number: 1
+    Customer #16 (Ninja) Visit Length: 29.009090
+    Customer #16 (Ninja) Wait Time: 28.008638
+    Customer #16 (Ninja) Total Gold Owed: 29.148769
+    ===================
+    Customer #17 (Ninja) Number of Visits: 1
+    Customer #17 (Ninja) Visit Number: 1
+    Customer #17 (Ninja) Visit Length: 26.010075
+    Customer #17 (Ninja) Wait Time: 24.009647
+    Customer #17 (Ninja) Total Gold Owed: 26.425871
+    ===================
+    Customer #18 (Ninja) Number of Visits: 1
+    Customer #18 (Ninja) Visit Number: 1
+    Customer #18 (Ninja) Visit Length: 23.005396
+    Customer #18 (Ninja) Wait Time: 23.005203
+    Customer #18 (Ninja) Total Gold Owed: 23.983250
+    ===================
+    Customer #19 (Ninja) Number of Visits: 1
+    Customer #19 (Ninja) Visit Number: 1
+    Customer #19 (Ninja) Visit Length: 28.009062
+    Customer #19 (Ninja) Wait Time: 26.008564
+    Customer #19 (Ninja) Total Gold Owed: 28.991699
+    ===================
+    Customer #20 (Ninja) Number of Visits: 1
+    Customer #20 (Ninja) Visit Number: 1
+    Customer #20 (Ninja) Visit Length: 26.005781
+    Customer #20 (Ninja) Wait Time: 23.005358
+    Customer #20 (Ninja) Total Gold Owed: 26.852894
+    ===================
+    Customer #21 (Ninja) Number of Visits: 1
+    Customer #21 (Ninja) Visit Number: 1
+    Customer #21 (Ninja) Visit Length: 26.003668
+    Customer #21 (Ninja) Wait Time: 26.003201
+    Customer #21 (Ninja) Total Gold Owed: 26.954670
+    ===================
+    Customer #22 (Ninja) Number of Visits: 1
+    Customer #22 (Ninja) Visit Number: 1
+    Customer #22 (Ninja) Visit Length: 16.997883
+    Customer #22 (Ninja) Wait Time: 13.997766
+    Customer #22 (Ninja) Total Gold Owed: 17.184620
+    ===================
+    Customer #23 (Ninja) Number of Visits: 1
+    Customer #23 (Ninja) Visit Number: 1
+    Customer #23 (Ninja) Visit Length: 22.001598
+    Customer #23 (Ninja) Wait Time: 22.001043
+    Customer #23 (Ninja) Total Gold Owed: 22.446438
+    ===================
+    Customer #24 (Ninja) Number of Visits: 2
+    Customer #24 (Ninja) Visit Number: 1
+    Customer #24 (Ninja) Visit Length: 28.004930
+    Customer #24 (Ninja) Wait Time: 26.003666
+    Customer #24 (Ninja) Visit Number: 2
+    Customer #24 (Ninja) Visit Length: 2.000240
+    Customer #24 (Ninja) Wait Time: 0.000002
+    Customer #24 (Ninja) Total Gold Owed: 31.263498
+    ===================
+    Customer #25 (Ninja) Number of Visits: 1
+    Customer #25 (Ninja) Visit Number: 1
+    Customer #25 (Ninja) Visit Length: 29.006613
+    Customer #25 (Ninja) Wait Time: 26.005817
+    Customer #25 (Ninja) Total Gold Owed: 29.906408
+
+    ===================
+      Shop Statistics
+    ===================
+
+    Time that teams were busy: 85.331349
+    Time that teams were free: 25.300946
+    Average Queue Length: 0.000000
+    Gross Revenue: 461.811462
+    Gold Per Visit: 13.994287
+    Total Profit: 441.811462
+
+
+
+----- Sample Run #2 -----
+
+Here is a sample run with an longer costume time. Notice how we try to costume as many of them as possible at a time.
+The teams were busy for 252.690206 seconds, and free for 27.567644 seconds. This is a good ratio, teams were busy 90% of the time
+
+    kenneth@kenneth-VirtualBox:~/Documents/cs3103/cs3013-project3/part1$ ./part1 4 28 23 5 2 1 4
+    Arrived: Customer #10 (Pirate)
+    Costuming: Customer #10 (Pirate)
+    Arrived: Customer #11 (Pirate)
+    Costuming: Customer #11 (Pirate)
+    Arrived: Customer #12 (Pirate)
+    Costuming: Customer #12 (Pirate)
+    Arrived: Customer #13 (Pirate)
+    Costuming: Customer #13 (Pirate)
+    Arrived: Customer #14 (Pirate)
+    Arrived: Customer #15 (Pirate)
+    Arrived: Customer #16 (Pirate)
+    Arrived: Customer #19 (Pirate)
+    Arrived: Customer #20 (Pirate)
+    Arrived: Customer #21 (Pirate)
+    Arrived: Customer #22 (Pirate)
+    Arrived: Customer #4 (Pirate)
+    Arrived: Customer #24 (Pirate)
+    Arrived: Customer #25 (Pirate)
+    Arrived: Customer #26 (Pirate)
+    Arrived: Customer #3 (Pirate)
+    Arrived: Customer #2 (Pirate)
+    Arrived: Customer #0 (Pirate)
+    Arrived: Customer #5 (Pirate)
+    Arrived: Customer #6 (Pirate)
+    Arrived: Customer #7 (Pirate)
+    Arrived: Customer #8 (Pirate)
+    Arrived: Customer #9 (Pirate)
+    Arrived: Customer #17 (Pirate)
+    Arrived: Customer #18 (Pirate)
+    Arrived: Customer #23 (Pirate)
+    Arrived: Customer #27 (Pirate)
+    Arrived: Customer #37 (Ninja)
+    Arrived: Customer #38 (Ninja)
+    Arrived: Customer #39 (Ninja)
+    Arrived: Customer #42 (Ninja)
+    Arrived: Customer #43 (Ninja)
+    Arrived: Customer #47 (Ninja)
+    Arrived: Customer #1 (Pirate)
+    Done Costuming: Customer #10 (Pirate)
+    Done Costuming: Customer #13 (Pirate)
+    Arrived: Customer #32 (Ninja)
+    Arrived: Customer #44 (Ninja)
+    Arrived: Customer #46 (Ninja)
+    Arrived: Customer #33 (Ninja)
+    Arrived: Customer #45 (Ninja)
+    Arrived: Customer #50 (Ninja)
+    Arrived: Customer #29 (Ninja)
+    Arrived: Customer #34 (Ninja)
+    Arrived: Customer #41 (Ninja)
+    Arrived: Customer #48 (Ninja)
+    Arrived: Customer #49 (Ninja)
+    Done Costuming: Customer #12 (Pirate)
+    Returning: Customer #12 (Pirate)
+    Arrived: Customer #12 (Pirate)
+    Costuming: Customer #12 (Pirate)
+    Arrived: Customer #28 (Ninja)
+    Arrived: Customer #30 (Ninja)
+    Arrived: Customer #31 (Ninja)
+    Arrived: Customer #35 (Ninja)
+    Arrived: Customer #36 (Ninja)
+    Arrived: Customer #40 (Ninja)
+    Done Costuming: Customer #11 (Pirate)
+    Done Costuming: Customer #12 (Pirate)
+    Costuming: Customer #37 (Ninja)
+    Done Costuming: Customer #37 (Ninja)
+    Costuming: Customer #14 (Pirate)
+    Done Costuming: Customer #14 (Pirate)
+    Costuming: Customer #38 (Ninja)
+    Done Costuming: Customer #38 (Ninja)
+    Costuming: Customer #15 (Pirate)
+    Done Costuming: Customer #15 (Pirate)
+    Returning: Customer #15 (Pirate)
+    Costuming: Customer #39 (Ninja)
+    Arrived: Customer #15 (Pirate)
+    Done Costuming: Customer #39 (Ninja)
+    Costuming: Customer #16 (Pirate)
+    Done Costuming: Customer #16 (Pirate)
+    Returning: Customer #16 (Pirate)
+    Costuming: Customer #42 (Ninja)
+    Arrived: Customer #16 (Pirate)
+    Done Costuming: Customer #42 (Ninja)
+    Costuming: Customer #19 (Pirate)
+    Done Costuming: Customer #19 (Pirate)
+    Costuming: Customer #43 (Ninja)
+    Done Costuming: Customer #43 (Ninja)
+    Costuming: Customer #20 (Pirate)
+    Done Costuming: Customer #20 (Pirate)
+    Returning: Customer #20 (Pirate)
+    Costuming: Customer #47 (Ninja)
+    Arrived: Customer #20 (Pirate)
+    Done Costuming: Customer #47 (Ninja)
+    Costuming: Customer #21 (Pirate)
+    Done Costuming: Customer #21 (Pirate)
+    Returning: Customer #21 (Pirate)
+    Costuming: Customer #32 (Ninja)
+    Arrived: Customer #21 (Pirate)
+    Done Costuming: Customer #32 (Ninja)
+    Returning: Customer #32 (Ninja)
+    Costuming: Customer #22 (Pirate)
+    Done Costuming: Customer #22 (Pirate)
+    Returning: Customer #22 (Pirate)
+    Arrived: Customer #32 (Ninja)
+    Costuming: Customer #32 (Ninja)
+    Costuming: Customer #44 (Ninja)
+    Arrived: Customer #22 (Pirate)
+    Done Costuming: Customer #32 (Ninja)
+    Done Costuming: Customer #44 (Ninja)
+    Costuming: Customer #4 (Pirate)
+    Done Costuming: Customer #4 (Pirate)
+    Returning: Customer #4 (Pirate)
+    Costuming: Customer #46 (Ninja)
+    Arrived: Customer #4 (Pirate)
+    Done Costuming: Customer #46 (Ninja)
+    Returning: Customer #46 (Ninja)
+    Costuming: Customer #24 (Pirate)
+    Done Costuming: Customer #24 (Pirate)
+    Returning: Customer #24 (Pirate)
+    Costuming: Customer #33 (Ninja)
+    Arrived: Customer #24 (Pirate)
+    Done Costuming: Customer #33 (Ninja)
+    Returning: Customer #33 (Ninja)
+    Costuming: Customer #25 (Pirate)
+    Arrived: Customer #46 (Ninja)
+    Arrived: Customer #33 (Ninja)
+    Done Costuming: Customer #25 (Pirate)
+    Returning: Customer #25 (Pirate)
+    Costuming: Customer #45 (Ninja)
+    Arrived: Customer #25 (Pirate)
+    Done Costuming: Customer #45 (Ninja)
+    Returning: Customer #45 (Ninja)
+    Costuming: Customer #26 (Pirate)
+    Arrived: Customer #45 (Ninja)
+    Done Costuming: Customer #26 (Pirate)
+    Costuming: Customer #50 (Ninja)
+    Done Costuming: Customer #50 (Ninja)
+    Costuming: Customer #3 (Pirate)
+    Done Costuming: Customer #3 (Pirate)
+    Returning: Customer #3 (Pirate)
+    Costuming: Customer #29 (Ninja)
+    Arrived: Customer #3 (Pirate)
+    Done Costuming: Customer #29 (Ninja)
+    Costuming: Customer #2 (Pirate)
+    Done Costuming: Customer #2 (Pirate)
+    Returning: Customer #2 (Pirate)
+    Costuming: Customer #34 (Ninja)
+    Done Costuming: Customer #34 (Ninja)
+    Arrived: Customer #2 (Pirate)
+    Costuming: Customer #2 (Pirate)
+    Costuming: Customer #0 (Pirate)
+    Done Costuming: Customer #0 (Pirate)
+    Done Costuming: Customer #2 (Pirate)
+    Costuming: Customer #41 (Ninja)
+    Done Costuming: Customer #41 (Ninja)
+    Costuming: Customer #5 (Pirate)
+    Done Costuming: Customer #5 (Pirate)
+    Returning: Customer #5 (Pirate)
+    Costuming: Customer #48 (Ninja)
+    Arrived: Customer #5 (Pirate)
+    Done Costuming: Customer #48 (Ninja)
+    Costuming: Customer #6 (Pirate)
+    Done Costuming: Customer #6 (Pirate)
+    Costuming: Customer #49 (Ninja)
+    Done Costuming: Customer #49 (Ninja)
+    Returning: Customer #49 (Ninja)
+    Costuming: Customer #7 (Pirate)
+    Arrived: Customer #49 (Ninja)
+    Done Costuming: Customer #7 (Pirate)
+    Returning: Customer #7 (Pirate)
+    Costuming: Customer #28 (Ninja)
+    Done Costuming: Customer #28 (Ninja)
+    Costuming: Customer #8 (Pirate)
+    Arrived: Customer #7 (Pirate)
+    Costuming: Customer #7 (Pirate)
+    Done Costuming: Customer #8 (Pirate)
+    Done Costuming: Customer #7 (Pirate)
+    Costuming: Customer #30 (Ninja)
+    Done Costuming: Customer #30 (Ninja)
+    Costuming: Customer #9 (Pirate)
+    Done Costuming: Customer #9 (Pirate)
+    Costuming: Customer #31 (Ninja)
+    Done Costuming: Customer #31 (Ninja)
+    Costuming: Customer #17 (Pirate)
+    Done Costuming: Customer #17 (Pirate)
+    Costuming: Customer #35 (Ninja)
+    Done Costuming: Customer #35 (Ninja)
+    Returning: Customer #35 (Ninja)
+    Costuming: Customer #18 (Pirate)
+    Done Costuming: Customer #18 (Pirate)
+    Returning: Customer #18 (Pirate)
+    Costuming: Customer #36 (Ninja)
+    Arrived: Customer #35 (Ninja)
+    Costuming: Customer #35 (Ninja)
+    Arrived: Customer #18 (Pirate)
+    Done Costuming: Customer #36 (Ninja)
+    Done Costuming: Customer #35 (Ninja)
+    Costuming: Customer #23 (Pirate)
+    Done Costuming: Customer #23 (Pirate)
+    Costuming: Customer #40 (Ninja)
+    Done Costuming: Customer #40 (Ninja)
+    Returning: Customer #40 (Ninja)
+    Costuming: Customer #27 (Pirate)
+    Done Costuming: Customer #27 (Pirate)
+    Costuming: Customer #46 (Ninja)
+    Done Costuming: Customer #46 (Ninja)
+    Costuming: Customer #1 (Pirate)
+    Done Costuming: Customer #1 (Pirate)
+    Returning: Customer #1 (Pirate)
+    Costuming: Customer #33 (Ninja)
+    Arrived: Customer #1 (Pirate)
+    Done Costuming: Customer #33 (Ninja)
+    Costuming: Customer #15 (Pirate)
+    Arrived: Customer #40 (Ninja)
+    Done Costuming: Customer #15 (Pirate)
+    Costuming: Customer #45 (Ninja)
+    Done Costuming: Customer #45 (Ninja)
+    Costuming: Customer #16 (Pirate)
+    Done Costuming: Customer #16 (Pirate)
+    Costuming: Customer #49 (Ninja)
+    Done Costuming: Customer #49 (Ninja)
+    Costuming: Customer #20 (Pirate)
+    Done Costuming: Customer #20 (Pirate)
+    Costuming: Customer #40 (Ninja)
+    Done Costuming: Customer #40 (Ninja)
+    Costuming: Customer #21 (Pirate)
+    Done Costuming: Customer #21 (Pirate)
+    Costuming: Customer #22 (Pirate)
+    Done Costuming: Customer #22 (Pirate)
+    Costuming: Customer #4 (Pirate)
+    Done Costuming: Customer #4 (Pirate)
+    Costuming: Customer #24 (Pirate)
+    Done Costuming: Customer #24 (Pirate)
+    Costuming: Customer #25 (Pirate)
+    Done Costuming: Customer #25 (Pirate)
+    Costuming: Customer #3 (Pirate)
+    Done Costuming: Customer #3 (Pirate)
+    Costuming: Customer #5 (Pirate)
+    Done Costuming: Customer #5 (Pirate)
+    Costuming: Customer #18 (Pirate)
+    Done Costuming: Customer #18 (Pirate)
+    Costuming: Customer #1 (Pirate)
+    Done Costuming: Customer #1 (Pirate)
+
+    ===================
+    Customer Statistics
+    ===================
+
+    Customer #0 (Pirate) Number of Visits: 1
+    Customer #0 (Pirate) Visit Number: 1
+    Customer #0 (Pirate) Visit Length: 91.039459
+    Customer #0 (Pirate) Wait Time: 91.039307
+    Customer #0 (Pirate) Total Gold Owed: 91.647415
+    ===================
+    Customer #1 (Pirate) Number of Visits: 2
+    Customer #1 (Pirate) Visit Number: 1
+    Customer #1 (Pirate) Visit Length: 156.089996
+    Customer #1 (Pirate) Wait Time: 156.089386
+    Customer #1 (Pirate) Visit Number: 2
+    Customer #1 (Pirate) Visit Length: 50.025082
+    Customer #1 (Pirate) Wait Time: 50.024757
+    Customer #1 (Pirate) Total Gold Owed: 206.328674
+    ===================
+    Customer #2 (Pirate) Number of Visits: 2
+    Customer #2 (Pirate) Visit Number: 1
+    Customer #2 (Pirate) Visit Length: 91.039001
+    Customer #2 (Pirate) Wait Time: 85.038078
+    Customer #2 (Pirate) Visit Number: 2
+    Customer #2 (Pirate) Visit Length: 6.000540
+    Customer #2 (Pirate) Wait Time: 0.000003
+    Customer #2 (Pirate) Total Gold Owed: 98.212234
+    ===================
+    Customer #3 (Pirate) Number of Visits: 2
+    Customer #3 (Pirate) Visit Number: 1
+    Customer #3 (Pirate) Visit Length: 84.037865
+    Customer #3 (Pirate) Wait Time: 84.037697
+    Customer #3 (Pirate) Visit Number: 2
+    Customer #3 (Pirate) Visit Length: 112.079063
+    Customer #3 (Pirate) Wait Time: 112.078835
+    Customer #3 (Pirate) Total Gold Owed: 197.426178
+    ===================
+    Customer #4 (Pirate) Number of Visits: 2
+    Customer #4 (Pirate) Visit Number: 1
+    Customer #4 (Pirate) Visit Length: 64.027328
+    Customer #4 (Pirate) Wait Time: 59.026730
+    Customer #4 (Pirate) Visit Number: 2
+    Customer #4 (Pirate) Visit Length: 126.085144
+    Customer #4 (Pirate) Wait Time: 121.083603
+    Customer #4 (Pirate) Total Gold Owed: 190.553101
+    ===================
+    Customer #5 (Pirate) Number of Visits: 2
+    Customer #5 (Pirate) Visit Number: 1
+    Customer #5 (Pirate) Visit Length: 103.040237
+    Customer #5 (Pirate) Wait Time: 97.036316
+    Customer #5 (Pirate) Visit Number: 2
+    Customer #5 (Pirate) Visit Length: 97.071602
+    Customer #5 (Pirate) Wait Time: 91.068214
+    Customer #5 (Pirate) Total Gold Owed: 201.054535
+    ===================
+    Customer #6 (Pirate) Number of Visits: 1
+    Customer #6 (Pirate) Visit Number: 1
+    Customer #6 (Pirate) Visit Length: 108.050728
+    Customer #6 (Pirate) Wait Time: 105.050323
+    Customer #6 (Pirate) Total Gold Owed: 108.997261
+    ===================
+    Customer #7 (Pirate) Number of Visits: 2
+    Customer #7 (Pirate) Visit Number: 1
+    Customer #7 (Pirate) Visit Length: 119.051468
+    Customer #7 (Pirate) Wait Time: 110.050934
+    Customer #7 (Pirate) Visit Number: 2
+    Customer #7 (Pirate) Visit Length: 9.004620
+    Customer #7 (Pirate) Wait Time: 0.000004
+    Customer #7 (Pirate) Total Gold Owed: 128.956497
+    ===================
+    Customer #8 (Pirate) Number of Visits: 1
+    Customer #8 (Pirate) Visit Number: 1
+    Customer #8 (Pirate) Visit Length: 121.058205
+    Customer #8 (Pirate) Wait Time: 119.052116
+    Customer #8 (Pirate) Total Gold Owed: 121.874680
+    ===================
+    Customer #9 (Pirate) Number of Visits: 1
+    Customer #9 (Pirate) Visit Number: 1
+    Customer #9 (Pirate) Visit Length: 133.066574
+    Customer #9 (Pirate) Wait Time: 132.066132
+    Customer #9 (Pirate) Total Gold Owed: 134.065933
+    ===================
+    Customer #10 (Pirate) Number of Visits: 1
+    Customer #10 (Pirate) Visit Number: 1
+    Customer #10 (Pirate) Visit Length: 2.000189
+    Customer #10 (Pirate) Wait Time: 0.000002
+    Customer #10 (Pirate) Total Gold Owed: 2.365376
+    ===================
+    Customer #11 (Pirate) Number of Visits: 1
+    Customer #11 (Pirate) Visit Number: 1
+    Customer #11 (Pirate) Visit Length: 9.006344
+    Customer #11 (Pirate) Wait Time: 0.000002
+    Customer #11 (Pirate) Total Gold Owed: 9.627174
+    ===================
+    Customer #12 (Pirate) Number of Visits: 2
+    Customer #12 (Pirate) Visit Number: 1
+    Customer #12 (Pirate) Visit Length: 7.001567
+    Customer #12 (Pirate) Wait Time: 0.000002
+    Customer #12 (Pirate) Visit Number: 2
+    Customer #12 (Pirate) Visit Length: 7.004505
+    Customer #12 (Pirate) Wait Time: 0.000003
+    Customer #12 (Pirate) Total Gold Owed: 15.232080
+    ===================
+    Customer #13 (Pirate) Number of Visits: 1
+    Customer #13 (Pirate) Visit Number: 1
+    Customer #13 (Pirate) Visit Length: 2.000181
+    Customer #13 (Pirate) Wait Time: 0.000002
+    Customer #13 (Pirate) Total Gold Owed: 2.111555
+    ===================
+    Customer #14 (Pirate) Number of Visits: 1
+    Customer #14 (Pirate) Visit Number: 1
+    Customer #14 (Pirate) Visit Length: 21.007380
+    Customer #14 (Pirate) Wait Time: 15.006283
+    Customer #14 (Pirate) Total Gold Owed: 21.336773
+    ===================
+    Customer #15 (Pirate) Number of Visits: 2
+    Customer #15 (Pirate) Visit Number: 1
+    Customer #15 (Pirate) Visit Length: 26.008162
+    Customer #15 (Pirate) Wait Time: 24.007704
+    Customer #15 (Pirate) Visit Number: 2
+    Customer #15 (Pirate) Visit Length: 135.089355
+    Customer #15 (Pirate) Wait Time: 133.088257
+    Customer #15 (Pirate) Total Gold Owed: 162.366714
+    ===================
+    Customer #16 (Pirate) Number of Visits: 2
+    Customer #16 (Pirate) Visit Number: 1
+    Customer #16 (Pirate) Visit Length: 36.009811
+    Customer #16 (Pirate) Wait Time: 29.009192
+    Customer #16 (Pirate) Visit Number: 2
+    Customer #16 (Pirate) Visit Length: 134.088577
+    Customer #16 (Pirate) Wait Time: 127.088333
+    Customer #16 (Pirate) Total Gold Owed: 170.496582
+    ===================
+    Customer #17 (Pirate) Number of Visits: 1
+    Customer #17 (Pirate) Visit Number: 1
+    Customer #17 (Pirate) Visit Length: 140.068771
+    Customer #17 (Pirate) Wait Time: 133.066849
+    Customer #17 (Pirate) Total Gold Owed: 140.138657
+    ===================
+    Customer #18 (Pirate) Number of Visits: 2
+    Customer #18 (Pirate) Visit Number: 1
+    Customer #18 (Pirate) Visit Length: 148.071167
+    Customer #18 (Pirate) Wait Time: 142.070908
+    Customer #18 (Pirate) Visit Number: 2
+    Customer #18 (Pirate) Visit Length: 58.043213
+    Customer #18 (Pirate) Wait Time: 52.042995
+    Customer #18 (Pirate) Total Gold Owed: 207.690201
+    ===================
+    Customer #19 (Pirate) Number of Visits: 1
+    Customer #19 (Pirate) Visit Number: 1
+    Customer #19 (Pirate) Visit Length: 38.011436
+    Customer #19 (Pirate) Wait Time: 36.010521
+    Customer #19 (Pirate) Total Gold Owed: 38.451912
+    ===================
+    Customer #20 (Pirate) Number of Visits: 2
+    Customer #20 (Pirate) Visit Number: 1
+    Customer #20 (Pirate) Visit Length: 48.012199
+    Customer #20 (Pirate) Wait Time: 41.011635
+    Customer #20 (Pirate) Visit Number: 2
+    Customer #20 (Pirate) Visit Length: 131.095642
+    Customer #20 (Pirate) Wait Time: 124.094254
+    Customer #20 (Pirate) Total Gold Owed: 180.863907
+    ===================
+    Customer #21 (Pirate) Number of Visits: 2
+    Customer #21 (Pirate) Visit Number: 1
+    Customer #21 (Pirate) Visit Length: 52.026051
+    Customer #21 (Pirate) Wait Time: 49.016567
+    Customer #21 (Pirate) Visit Number: 2
+    Customer #21 (Pirate) Visit Length: 130.083374
+    Customer #21 (Pirate) Wait Time: 127.082504
+    Customer #21 (Pirate) Total Gold Owed: 182.448410
+    ===================
+    Customer #22 (Pirate) Number of Visits: 2
+    Customer #22 (Pirate) Visit Number: 1
+    Customer #22 (Pirate) Visit Length: 57.026531
+    Customer #22 (Pirate) Wait Time: 54.026379
+    Customer #22 (Pirate) Visit Number: 2
+    Customer #22 (Pirate) Visit Length: 128.084320
+    Customer #22 (Pirate) Wait Time: 125.082954
+    Customer #22 (Pirate) Total Gold Owed: 186.450592
+    ===================
+    Customer #23 (Pirate) Number of Visits: 1
+    Customer #23 (Pirate) Visit Number: 1
+    Customer #23 (Pirate) Visit Length: 152.071579
+    Customer #23 (Pirate) Wait Time: 151.071442
+    Customer #23 (Pirate) Total Gold Owed: 152.330002
+    ===================
+    Customer #24 (Pirate) Number of Visits: 2
+    Customer #24 (Pirate) Visit Number: 1
+    Customer #24 (Pirate) Visit Length: 67.028198
+    Customer #24 (Pirate) Wait Time: 66.027802
+    Customer #24 (Pirate) Visit Number: 2
+    Customer #24 (Pirate) Visit Length: 124.088058
+    Customer #24 (Pirate) Wait Time: 123.084328
+    Customer #24 (Pirate) Total Gold Owed: 191.212097
+    ===================
+    Customer #25 (Pirate) Number of Visits: 2
+    Customer #25 (Pirate) Visit Number: 1
+    Customer #25 (Pirate) Visit Length: 74.036110
+    Customer #25 (Pirate) Wait Time: 69.035805
+    Customer #25 (Pirate) Visit Number: 2
+    Customer #25 (Pirate) Visit Length: 122.080582
+    Customer #25 (Pirate) Wait Time: 117.080261
+    Customer #25 (Pirate) Total Gold Owed: 197.357361
+    ===================
+    Customer #26 (Pirate) Number of Visits: 1
+    Customer #26 (Pirate) Visit Number: 1
+    Customer #26 (Pirate) Visit Length: 82.037056
+    Customer #26 (Pirate) Wait Time: 76.036476
+    Customer #26 (Pirate) Total Gold Owed: 82.351952
+    ===================
+    Customer #27 (Pirate) Number of Visits: 1
+    Customer #27 (Pirate) Visit Number: 1
+    Customer #27 (Pirate) Visit Length: 154.083252
+    Customer #27 (Pirate) Wait Time: 152.071640
+    Customer #27 (Pirate) Total Gold Owed: 154.685104
+    ===================
+    Customer #28 (Ninja) Number of Visits: 1
+    Customer #28 (Ninja) Visit Number: 1
+    Customer #28 (Ninja) Visit Length: 113.056229
+    Customer #28 (Ninja) Wait Time: 113.055725
+    Customer #28 (Ninja) Total Gold Owed: 113.180046
+    ===================
+    Customer #29 (Ninja) Number of Visits: 1
+    Customer #29 (Ninja) Visit Number: 1
+    Customer #29 (Ninja) Visit Length: 80.037918
+    Customer #29 (Ninja) Wait Time: 79.037689
+    Customer #29 (Ninja) Total Gold Owed: 80.040390
+    ===================
+    Customer #30 (Ninja) Number of Visits: 1
+    Customer #30 (Ninja) Visit Number: 1
+    Customer #30 (Ninja) Visit Length: 126.070366
+    Customer #30 (Ninja) Wait Time: 123.069710
+    Customer #30 (Ninja) Total Gold Owed: 126.725922
+    ===================
+    Customer #31 (Ninja) Number of Visits: 1
+    Customer #31 (Ninja) Visit Number: 1
+    Customer #31 (Ninja) Visit Length: 127.071144
+    Customer #31 (Ninja) Wait Time: 127.070900
+    Customer #31 (Ninja) Total Gold Owed: 127.948936
+    ===================
+    Customer #32 (Ninja) Number of Visits: 2
+    Customer #32 (Ninja) Visit Number: 1
+    Customer #32 (Ninja) Visit Length: 51.025681
+    Customer #32 (Ninja) Wait Time: 49.025349
+    Customer #32 (Ninja) Visit Number: 2
+    Customer #32 (Ninja) Visit Length: 2.000140
+    Customer #32 (Ninja) Wait Time: 0.000003
+    Customer #32 (Ninja) Total Gold Owed: 54.087387
+    ===================
+    Customer #33 (Ninja) Number of Visits: 2
+    Customer #33 (Ninja) Visit Number: 1
+    Customer #33 (Ninja) Visit Length: 65.035561
+    Customer #33 (Ninja) Wait Time: 63.027882
+    Customer #33 (Ninja) Visit Number: 2
+    Customer #33 (Ninja) Visit Length: 86.059776
+    Customer #33 (Ninja) Wait Time: 84.059448
+    Customer #33 (Ninja) Total Gold Owed: 152.284058
+    ===================
+    Customer #34 (Ninja) Number of Visits: 1
+    Customer #34 (Ninja) Visit Number: 1
+    Customer #34 (Ninja) Visit Length: 86.039047
+    Customer #34 (Ninja) Wait Time: 86.038826
+    Customer #34 (Ninja) Total Gold Owed: 87.019196
+    ===================
+    Customer #35 (Ninja) Number of Visits: 2
+    Customer #35 (Ninja) Visit Number: 1
+    Customer #35 (Ninja) Visit Length: 136.075150
+    Customer #35 (Ninja) Wait Time: 134.072906
+    Customer #35 (Ninja) Visit Number: 2
+    Customer #35 (Ninja) Visit Length: 2.000315
+    Customer #35 (Ninja) Wait Time: 0.000004
+    Customer #35 (Ninja) Total Gold Owed: 138.455994
+    ===================
+    Customer #36 (Ninja) Number of Visits: 1
+    Customer #36 (Ninja) Visit Number: 1
+    Customer #36 (Ninja) Visit Length: 144.076279
+    Customer #36 (Ninja) Wait Time: 142.075287
+    Customer #36 (Ninja) Total Gold Owed: 144.729553
+    ===================
+    Customer #37 (Ninja) Number of Visits: 1
+    Customer #37 (Ninja) Visit Number: 1
+    Customer #37 (Ninja) Visit Length: 14.000219
+    Customer #37 (Ninja) Wait Time: 13.000070
+    Customer #37 (Ninja) Total Gold Owed: 14.264076
+    ===================
+    Customer #38 (Ninja) Number of Visits: 1
+    Customer #38 (Ninja) Visit Number: 1
+    Customer #38 (Ninja) Visit Length: 23.001570
+    Customer #38 (Ninja) Wait Time: 20.001310
+    Customer #38 (Ninja) Total Gold Owed: 23.431820
+    ===================
+    Customer #39 (Ninja) Number of Visits: 1
+    Customer #39 (Ninja) Visit Number: 1
+    Customer #39 (Ninja) Visit Length: 28.003033
+    Customer #39 (Ninja) Wait Time: 25.002066
+    Customer #39 (Ninja) Total Gold Owed: 28.983166
+    ===================
+    Customer #40 (Ninja) Number of Visits: 2
+    Customer #40 (Ninja) Visit Number: 1
+    Customer #40 (Ninja) Visit Length: 146.075775
+    Customer #40 (Ninja) Wait Time: 146.075745
+    Customer #40 (Ninja) Visit Number: 2
+    Customer #40 (Ninja) Visit Length: 19.029345
+    Customer #40 (Ninja) Wait Time: 19.028753
+    Customer #40 (Ninja) Total Gold Owed: 165.538406
+    ===================
+    Customer #41 (Ninja) Number of Visits: 1
+    Customer #41 (Ninja) Visit Number: 1
+    Customer #41 (Ninja) Visit Length: 93.041794
+    Customer #41 (Ninja) Wait Time: 92.039665
+    Customer #41 (Ninja) Total Gold Owed: 93.133789
+    ===================
+    Customer #42 (Ninja) Number of Visits: 1
+    Customer #42 (Ninja) Visit Number: 1
+    Customer #42 (Ninja) Visit Length: 35.004246
+    Customer #42 (Ninja) Wait Time: 35.003727
+    Customer #42 (Ninja) Total Gold Owed: 35.671940
+    ===================
+    Customer #43 (Ninja) Number of Visits: 1
+    Customer #43 (Ninja) Visit Number: 1
+    Customer #43 (Ninja) Visit Length: 40.005505
+    Customer #43 (Ninja) Wait Time: 37.005409
+    Customer #43 (Ninja) Total Gold Owed: 40.574974
+    ===================
+    Customer #44 (Ninja) Number of Visits: 1
+    Customer #44 (Ninja) Visit Number: 1
+    Customer #44 (Ninja) Visit Length: 56.026009
+    Customer #44 (Ninja) Wait Time: 54.025818
+    Customer #44 (Ninja) Total Gold Owed: 56.059715
+    ===================
+    Customer #45 (Ninja) Number of Visits: 2
+    Customer #45 (Ninja) Visit Number: 1
+    Customer #45 (Ninja) Visit Length: 72.036171
+    Customer #45 (Ninja) Wait Time: 70.035812
+    Customer #45 (Ninja) Visit Number: 2
+    Customer #45 (Ninja) Visit Length: 83.061104
+    Customer #45 (Ninja) Wait Time: 81.060524
+    Customer #45 (Ninja) Total Gold Owed: 155.164398
+    ===================
+    Customer #46 (Ninja) Number of Visits: 2
+    Customer #46 (Ninja) Visit Number: 1
+    Customer #46 (Ninja) Visit Length: 63.027065
+    Customer #46 (Ninja) Wait Time: 61.026585
+    Customer #46 (Ninja) Visit Number: 2
+    Customer #46 (Ninja) Visit Length: 88.059624
+    Customer #46 (Ninja) Wait Time: 86.053391
+    Customer #46 (Ninja) Total Gold Owed: 151.443985
+    ===================
+    Customer #47 (Ninja) Number of Visits: 1
+    Customer #47 (Ninja) Visit Number: 1
+    Customer #47 (Ninja) Visit Length: 48.010414
+    Customer #47 (Ninja) Wait Time: 47.006092
+    Customer #47 (Ninja) Total Gold Owed: 48.344410
+    ===================
+    Customer #48 (Ninja) Number of Visits: 1
+    Customer #48 (Ninja) Visit Number: 1
+    Customer #48 (Ninja) Visit Length: 101.055817
+    Customer #48 (Ninja) Wait Time: 99.045708
+    Customer #48 (Ninja) Total Gold Owed: 101.686340
+    ===================
+    Customer #49 (Ninja) Number of Visits: 2
+    Customer #49 (Ninja) Visit Number: 1
+    Customer #49 (Ninja) Visit Length: 106.056458
+    Customer #49 (Ninja) Wait Time: 104.056290
+    Customer #49 (Ninja) Visit Number: 2
+    Customer #49 (Ninja) Visit Length: 56.040722
+    Customer #49 (Ninja) Wait Time: 54.032799
+    Customer #49 (Ninja) Total Gold Owed: 162.916611
+    ===================
+    Customer #50 (Ninja) Number of Visits: 1
+    Customer #50 (Ninja) Visit Number: 1
+    Customer #50 (Ninja) Visit Length: 80.037346
+    Customer #50 (Ninja) Wait Time: 78.036827
+    Customer #50 (Ninja) Total Gold Owed: 80.814491
+
+    ===================
+      Shop Statistics
+    ===================
+
+    Time that teams were busy: 252.690206
+    Time that teams were free: 27.567644
+    Average Queue Length: 30.000000
+    Gross Revenue: 5759.132812
+    Gold Per Visit: 78.892230
+    Total Profit: 5739.132812
+
+
+----- Sample Run #3 -----
+Here is a sample run with alot of pirates and ninjas. Notice how we try to costume as many of them as possible at a time.
+The teams were busy for 236.522160 seconds, and free for 20.378229 seconds. This is a good ratio, teams were busy 92% of the time
+
+    kenneth@kenneth-VirtualBox:~/Documents/cs3103/cs3013-project3/part1$ ./part1 4 41 45 2 3 4 1
+    Arrived: Customer #42 (Ninja)
+    Costuming: Customer #42 (Ninja)
+    Arrived: Customer #8 (Pirate)
+    Arrived: Customer #12 (Pirate)
+    Arrived: Customer #16 (Pirate)
+    Arrived: Customer #18 (Pirate)
+    Arrived: Customer #34 (Pirate)
+    Arrived: Customer #41 (Ninja)
+    Costuming: Customer #41 (Ninja)
+    Arrived: Customer #44 (Ninja)
+    Costuming: Customer #44 (Ninja)
+    Arrived: Customer #45 (Ninja)
+    Costuming: Customer #45 (Ninja)
+    Arrived: Customer #48 (Ninja)
+    Arrived: Customer #49 (Ninja)
+    Arrived: Customer #50 (Ninja)
+    Arrived: Customer #52 (Ninja)
+    Arrived: Customer #53 (Ninja)
+    Arrived: Customer #55 (Ninja)
+    Arrived: Customer #56 (Ninja)
+    Arrived: Customer #59 (Ninja)
+    Arrived: Customer #62 (Ninja)
+    Arrived: Customer #63 (Ninja)
+    Arrived: Customer #70 (Ninja)
+    Arrived: Customer #66 (Ninja)
+    Arrived: Customer #68 (Ninja)
+    Arrived: Customer #69 (Ninja)
+    Arrived: Customer #79 (Ninja)
+    Arrived: Customer #80 (Ninja)
+    Arrived: Customer #81 (Ninja)
+    Arrived: Customer #83 (Ninja)
+    Arrived: Customer #85 (Ninja)
+    Arrived: Customer #36 (Pirate)
+    Arrived: Customer #1 (Pirate)
+    Arrived: Customer #14 (Pirate)
+    Arrived: Customer #22 (Pirate)
+    Arrived: Customer #30 (Pirate)
+    Arrived: Customer #3 (Pirate)
+    Arrived: Customer #32 (Pirate)
+    Arrived: Customer #43 (Ninja)
+    Arrived: Customer #46 (Ninja)
+    Arrived: Customer #47 (Ninja)
+    Arrived: Customer #51 (Ninja)
+    Arrived: Customer #54 (Ninja)
+    Arrived: Customer #57 (Ninja)
+    Arrived: Customer #58 (Ninja)
+    Arrived: Customer #60 (Ninja)
+    Arrived: Customer #64 (Ninja)
+    Arrived: Customer #61 (Ninja)
+    Arrived: Customer #65 (Ninja)
+    Arrived: Customer #67 (Ninja)
+    Arrived: Customer #71 (Ninja)
+    Arrived: Customer #72 (Ninja)
+    Arrived: Customer #73 (Ninja)
+    Arrived: Customer #74 (Ninja)
+    Arrived: Customer #75 (Ninja)
+    Arrived: Customer #76 (Ninja)
+    Arrived: Customer #77 (Ninja)
+    Arrived: Customer #78 (Ninja)
+    Arrived: Customer #82 (Ninja)
+    Arrived: Customer #84 (Ninja)
+    Arrived: Customer #6 (Pirate)
+    Arrived: Customer #24 (Pirate)
+    Arrived: Customer #29 (Pirate)
+    Arrived: Customer #35 (Pirate)
+    Arrived: Customer #33 (Pirate)
+    Done Costuming: Customer #45 (Ninja)
+    Returning soon: Customer #45 (Ninja)
+    Arrived: Customer #45 (Ninja)
+    Costuming: Customer #45 (Ninja)
+    Arrived: Customer #2 (Pirate)
+    Arrived: Customer #5 (Pirate)
+    Arrived: Customer #20 (Pirate)
+    Arrived: Customer #27 (Pirate)
+    Done Costuming: Customer #44 (Ninja)
+    Arrived: Customer #0 (Pirate)
+    Arrived: Customer #10 (Pirate)
+    Arrived: Customer #17 (Pirate)
+    Arrived: Customer #31 (Pirate)
+    Done Costuming: Customer #41 (Ninja)
+    Done Costuming: Customer #45 (Ninja)
+    Arrived: Customer #39 (Pirate)
+    Arrived: Customer #38 (Pirate)
+    Arrived: Customer #37 (Pirate)
+    Arrived: Customer #7 (Pirate)
+    Arrived: Customer #11 (Pirate)
+    Arrived: Customer #15 (Pirate)
+    Arrived: Customer #21 (Pirate)
+    Arrived: Customer #23 (Pirate)
+    Arrived: Customer #25 (Pirate)
+    Arrived: Customer #28 (Pirate)
+    Done Costuming: Customer #42 (Ninja)
+    Costuming: Customer #8 (Pirate)
+    Done Costuming: Customer #8 (Pirate)
+    Returning soon: Customer #8 (Pirate)
+    Costuming: Customer #48 (Ninja)
+    Arrived: Customer #8 (Pirate)
+    Done Costuming: Customer #48 (Ninja)
+    Costuming: Customer #12 (Pirate)
+    Arrived: Customer #13 (Pirate)
+    Costuming: Customer #13 (Pirate)
+    Arrived: Customer #19 (Pirate)
+    Costuming: Customer #19 (Pirate)
+    Arrived: Customer #26 (Pirate)
+    Costuming: Customer #26 (Pirate)
+    Arrived: Customer #4 (Pirate)
+    Done Costuming: Customer #26 (Pirate)
+    Arrived: Customer #40 (Pirate)
+    Costuming: Customer #40 (Pirate)
+    Done Costuming: Customer #12 (Pirate)
+    Arrived: Customer #9 (Pirate)
+    Costuming: Customer #9 (Pirate)
+    Done Costuming: Customer #19 (Pirate)
+    Done Costuming: Customer #13 (Pirate)
+    Returning soon: Customer #13 (Pirate)
+    Done Costuming: Customer #40 (Pirate)
+    Done Costuming: Customer #9 (Pirate)
+    Costuming: Customer #49 (Ninja)
+    Arrived: Customer #13 (Pirate)
+    Done Costuming: Customer #49 (Ninja)
+    Costuming: Customer #16 (Pirate)
+    Done Costuming: Customer #16 (Pirate)
+    Costuming: Customer #50 (Ninja)
+    Done Costuming: Customer #50 (Ninja)
+    Returning soon: Customer #50 (Ninja)
+    Arrived: Customer #50 (Ninja)
+    Costuming: Customer #18 (Pirate)
+    Done Costuming: Customer #18 (Pirate)
+    Costuming: Customer #52 (Ninja)
+    Done Costuming: Customer #52 (Ninja)
+    Costuming: Customer #34 (Pirate)
+    Done Costuming: Customer #34 (Pirate)
+    Costuming: Customer #53 (Ninja)
+    Done Costuming: Customer #53 (Ninja)
+    Returning soon: Customer #53 (Ninja)
+    Costuming: Customer #36 (Pirate)
+    Arrived: Customer #53 (Ninja)
+    Done Costuming: Customer #36 (Pirate)
+    Costuming: Customer #55 (Ninja)
+    Done Costuming: Customer #55 (Ninja)
+    Costuming: Customer #1 (Pirate)
+    Done Costuming: Customer #1 (Pirate)
+    Costuming: Customer #56 (Ninja)
+    Done Costuming: Customer #56 (Ninja)
+    Costuming: Customer #14 (Pirate)
+    Done Costuming: Customer #14 (Pirate)
+    Costuming: Customer #59 (Ninja)
+    Done Costuming: Customer #59 (Ninja)
+    Returning soon: Customer #59 (Ninja)
+    Costuming: Customer #22 (Pirate)
+    Arrived: Customer #59 (Ninja)
+    Done Costuming: Customer #22 (Pirate)
+    Returning soon: Customer #22 (Pirate)
+    Costuming: Customer #62 (Ninja)
+    Arrived: Customer #22 (Pirate)
+    Done Costuming: Customer #62 (Ninja)
+    Returning soon: Customer #62 (Ninja)
+    Costuming: Customer #30 (Pirate)
+    Arrived: Customer #62 (Ninja)
+    Done Costuming: Customer #30 (Pirate)
+    Costuming: Customer #63 (Ninja)
+    Done Costuming: Customer #63 (Ninja)
+    Costuming: Customer #3 (Pirate)
+    Done Costuming: Customer #3 (Pirate)
+    Costuming: Customer #70 (Ninja)
+    Done Costuming: Customer #70 (Ninja)
+    Returning soon: Customer #70 (Ninja)
+    Costuming: Customer #32 (Pirate)
+    Arrived: Customer #70 (Ninja)
+    Done Costuming: Customer #32 (Pirate)
+    Costuming: Customer #66 (Ninja)
+    Done Costuming: Customer #66 (Ninja)
+    Costuming: Customer #6 (Pirate)
+    Done Costuming: Customer #6 (Pirate)
+    Costuming: Customer #68 (Ninja)
+    Done Costuming: Customer #68 (Ninja)
+    Costuming: Customer #24 (Pirate)
+    Done Costuming: Customer #24 (Pirate)
+    Costuming: Customer #69 (Ninja)
+    Done Costuming: Customer #69 (Ninja)
+    Costuming: Customer #29 (Pirate)
+    Done Costuming: Customer #29 (Pirate)
+    Returning soon: Customer #29 (Pirate)
+    Costuming: Customer #79 (Ninja)
+    Arrived: Customer #29 (Pirate)
+    Done Costuming: Customer #79 (Ninja)
+    Returning soon: Customer #79 (Ninja)
+    Costuming: Customer #35 (Pirate)
+    Arrived: Customer #79 (Ninja)
+    Done Costuming: Customer #35 (Pirate)
+    Returning soon: Customer #35 (Pirate)
+    Costuming: Customer #80 (Ninja)
+    Done Costuming: Customer #80 (Ninja)
+    Costuming: Customer #33 (Pirate)
+    Done Costuming: Customer #33 (Pirate)
+    Returning soon: Customer #33 (Pirate)
+    Arrived: Customer #35 (Pirate)
+    Costuming: Customer #81 (Ninja)
+    Done Costuming: Customer #81 (Ninja)
+    Returning soon: Customer #81 (Ninja)
+    Costuming: Customer #2 (Pirate)
+    Arrived: Customer #81 (Ninja)
+    Arrived: Customer #33 (Pirate)
+    Costuming: Customer #33 (Pirate)
+    Done Costuming: Customer #2 (Pirate)
+    Returning soon: Customer #2 (Pirate)
+    Done Costuming: Customer #33 (Pirate)
+    Costuming: Customer #83 (Ninja)
+    Done Costuming: Customer #83 (Ninja)
+    Returning soon: Customer #83 (Ninja)
+    Arrived: Customer #83 (Ninja)
+    Costuming: Customer #5 (Pirate)
+    Arrived: Customer #2 (Pirate)
+    Costuming: Customer #2 (Pirate)
+    Done Costuming: Customer #2 (Pirate)
+    Done Costuming: Customer #5 (Pirate)
+    Costuming: Customer #85 (Ninja)
+    Done Costuming: Customer #85 (Ninja)
+    Costuming: Customer #20 (Pirate)
+    Done Costuming: Customer #20 (Pirate)
+    Costuming: Customer #43 (Ninja)
+    Done Costuming: Customer #43 (Ninja)
+    Returning soon: Customer #43 (Ninja)
+    Costuming: Customer #27 (Pirate)
+    Done Costuming: Customer #27 (Pirate)
+    Costuming: Customer #46 (Ninja)
+    Done Costuming: Customer #46 (Ninja)
+    Costuming: Customer #0 (Pirate)
+    Done Costuming: Customer #0 (Pirate)
+    Costuming: Customer #47 (Ninja)
+    Arrived: Customer #43 (Ninja)
+    Costuming: Customer #43 (Ninja)
+    Done Costuming: Customer #47 (Ninja)
+    Done Costuming: Customer #43 (Ninja)
+    Costuming: Customer #10 (Pirate)
+    Done Costuming: Customer #10 (Pirate)
+    Costuming: Customer #51 (Ninja)
+    Done Costuming: Customer #51 (Ninja)
+    Costuming: Customer #17 (Pirate)
+    Done Costuming: Customer #17 (Pirate)
+    Returning soon: Customer #17 (Pirate)
+    Costuming: Customer #54 (Ninja)
+    Done Costuming: Customer #54 (Ninja)
+    Costuming: Customer #31 (Pirate)
+    Arrived: Customer #17 (Pirate)
+    Costuming: Customer #17 (Pirate)
+    Done Costuming: Customer #31 (Pirate)
+    Done Costuming: Customer #17 (Pirate)
+    Costuming: Customer #57 (Ninja)
+    Done Costuming: Customer #57 (Ninja)
+    Costuming: Customer #39 (Pirate)
+    Done Costuming: Customer #39 (Pirate)
+    Returning soon: Customer #39 (Pirate)
+    Costuming: Customer #58 (Ninja)
+    Arrived: Customer #39 (Pirate)
+    Done Costuming: Customer #58 (Ninja)
+    Costuming: Customer #38 (Pirate)
+    Done Costuming: Customer #38 (Pirate)
+    Costuming: Customer #60 (Ninja)
+    Done Costuming: Customer #60 (Ninja)
+    Returning soon: Customer #60 (Ninja)
+    Costuming: Customer #37 (Pirate)
+    Arrived: Customer #60 (Ninja)
+    Done Costuming: Customer #37 (Pirate)
+    Costuming: Customer #64 (Ninja)
+    Done Costuming: Customer #64 (Ninja)
+    Costuming: Customer #7 (Pirate)
+    Done Costuming: Customer #7 (Pirate)
+    Costuming: Customer #61 (Ninja)
+    Done Costuming: Customer #61 (Ninja)
+    Costuming: Customer #11 (Pirate)
+    Done Costuming: Customer #11 (Pirate)
+    Returning soon: Customer #11 (Pirate)
+    Costuming: Customer #65 (Ninja)
+    Done Costuming: Customer #65 (Ninja)
+    Costuming: Customer #15 (Pirate)
+    Done Costuming: Customer #15 (Pirate)
+    Costuming: Customer #67 (Ninja)
+    Arrived: Customer #11 (Pirate)
+    Done Costuming: Customer #67 (Ninja)
+    Costuming: Customer #21 (Pirate)
+    Done Costuming: Customer #21 (Pirate)
+    Costuming: Customer #71 (Ninja)
+    Done Costuming: Customer #71 (Ninja)
+    Costuming: Customer #23 (Pirate)
+    Done Costuming: Customer #23 (Pirate)
+    Costuming: Customer #72 (Ninja)
+    Done Costuming: Customer #72 (Ninja)
+    Costuming: Customer #25 (Pirate)
+    Done Costuming: Customer #25 (Pirate)
+    Costuming: Customer #73 (Ninja)
+    Done Costuming: Customer #73 (Ninja)
+    Costuming: Customer #28 (Pirate)
+    Done Costuming: Customer #28 (Pirate)
+    Costuming: Customer #74 (Ninja)
+    Done Costuming: Customer #74 (Ninja)
+    Returning soon: Customer #74 (Ninja)
+    Costuming: Customer #8 (Pirate)
+    Done Costuming: Customer #8 (Pirate)
+    Costuming: Customer #75 (Ninja)
+    Arrived: Customer #74 (Ninja)
+    Costuming: Customer #74 (Ninja)
+    Done Costuming: Customer #75 (Ninja)
+    Returning soon: Customer #75 (Ninja)
+    Arrived: Customer #75 (Ninja)
+    Costuming: Customer #75 (Ninja)
+    Done Costuming: Customer #74 (Ninja)
+    Done Costuming: Customer #75 (Ninja)
+    Costuming: Customer #4 (Pirate)
+    Done Costuming: Customer #4 (Pirate)
+    Returning soon: Customer #4 (Pirate)
+    Costuming: Customer #76 (Ninja)
+    Done Costuming: Customer #76 (Ninja)
+    Costuming: Customer #13 (Pirate)
+    Done Costuming: Customer #13 (Pirate)
+    Arrived: Customer #4 (Pirate)
+    Costuming: Customer #77 (Ninja)
+    Done Costuming: Customer #77 (Ninja)
+    Returning soon: Customer #77 (Ninja)
+    Costuming: Customer #22 (Pirate)
+    Arrived: Customer #77 (Ninja)
+    Done Costuming: Customer #22 (Pirate)
+    Costuming: Customer #78 (Ninja)
+    Done Costuming: Customer #78 (Ninja)
+    Costuming: Customer #29 (Pirate)
+    Done Costuming: Customer #29 (Pirate)
+    Costuming: Customer #82 (Ninja)
+    Done Costuming: Customer #82 (Ninja)
+    Costuming: Customer #35 (Pirate)
+    Done Costuming: Customer #35 (Pirate)
+    Costuming: Customer #84 (Ninja)
+    Done Costuming: Customer #84 (Ninja)
+    Costuming: Customer #39 (Pirate)
+    Done Costuming: Customer #39 (Pirate)
+    Costuming: Customer #50 (Ninja)
+    Done Costuming: Customer #50 (Ninja)
+    Costuming: Customer #11 (Pirate)
+    Done Costuming: Customer #11 (Pirate)
+    Costuming: Customer #53 (Ninja)
+    Done Costuming: Customer #53 (Ninja)
+    Costuming: Customer #4 (Pirate)
+    Done Costuming: Customer #4 (Pirate)
+    Costuming: Customer #59 (Ninja)
+    Done Costuming: Customer #59 (Ninja)
+    Costuming: Customer #62 (Ninja)
+    Done Costuming: Customer #62 (Ninja)
+    Costuming: Customer #70 (Ninja)
+    Done Costuming: Customer #70 (Ninja)
+    Costuming: Customer #79 (Ninja)
+    Done Costuming: Customer #79 (Ninja)
+    Costuming: Customer #81 (Ninja)
+    Done Costuming: Customer #81 (Ninja)
+    Costuming: Customer #83 (Ninja)
+    Done Costuming: Customer #83 (Ninja)
+    Costuming: Customer #60 (Ninja)
+    Done Costuming: Customer #60 (Ninja)
+    Costuming: Customer #77 (Ninja)
+    Done Costuming: Customer #77 (Ninja)
+
+    ===================
+    Customer Statistics
+    ===================
+
+    Customer #0 (Pirate) Number of Visits: 1
+    Customer #0 (Pirate) Visit Number: 1
+    Customer #0 (Pirate) Visit Length: 87.063507
+    Customer #0 (Pirate) Wait Time: 87.063240
+    Customer #0 (Pirate) Total Gold Owed: 87.634827
+    ===================
+    Customer #1 (Pirate) Number of Visits: 1
+    Customer #1 (Pirate) Visit Number: 1
+    Customer #1 (Pirate) Visit Length: 28.017794
+    Customer #1 (Pirate) Wait Time: 26.016233
+    Customer #1 (Pirate) Total Gold Owed: 28.738810
+    ===================
+    Customer #2 (Pirate) Number of Visits: 2
+    Customer #2 (Pirate) Visit Number: 1
+    Customer #2 (Pirate) Visit Length: 76.046501
+    Customer #2 (Pirate) Wait Time: 75.045677
+    Customer #2 (Pirate) Visit Number: 2
+    Customer #2 (Pirate) Visit Length: 1.000168
+    Customer #2 (Pirate) Wait Time: 0.000004
+    Customer #2 (Pirate) Total Gold Owed: 77.168739
+    ===================
+    Customer #3 (Pirate) Number of Visits: 1
+    Customer #3 (Pirate) Visit Number: 1
+    Customer #3 (Pirate) Visit Length: 46.022968
+    Customer #3 (Pirate) Wait Time: 45.022358
+    Customer #3 (Pirate) Total Gold Owed: 46.127750
+    ===================
+    Customer #4 (Pirate) Number of Visits: 2
+    Customer #4 (Pirate) Visit Number: 1
+    Customer #4 (Pirate) Visit Length: 151.121826
+    Customer #4 (Pirate) Wait Time: 151.121277
+    Customer #4 (Pirate) Visit Number: 2
+    Customer #4 (Pirate) Visit Length: 15.015079
+    Customer #4 (Pirate) Wait Time: 15.014637
+    Customer #4 (Pirate) Total Gold Owed: 166.743774
+    ===================
+    Customer #5 (Pirate) Number of Visits: 1
+    Customer #5 (Pirate) Visit Number: 1
+    Customer #5 (Pirate) Visit Length: 80.053719
+    Customer #5 (Pirate) Wait Time: 78.053337
+    Customer #5 (Pirate) Total Gold Owed: 80.837547
+    ===================
+    Customer #6 (Pirate) Number of Visits: 1
+    Customer #6 (Pirate) Visit Number: 1
+    Customer #6 (Pirate) Visit Length: 60.033154
+    Customer #6 (Pirate) Wait Time: 57.032829
+    Customer #6 (Pirate) Total Gold Owed: 60.351299
+    ===================
+    Customer #7 (Pirate) Number of Visits: 1
+    Customer #7 (Pirate) Visit Number: 1
+    Customer #7 (Pirate) Visit Length: 113.089699
+    Customer #7 (Pirate) Wait Time: 110.089462
+    Customer #7 (Pirate) Total Gold Owed: 113.407066
+    ===================
+    Customer #8 (Pirate) Number of Visits: 2
+    Customer #8 (Pirate) Visit Number: 1
+    Customer #8 (Pirate) Visit Length: 5.001267
+    Customer #8 (Pirate) Wait Time: 5.000621
+    Customer #8 (Pirate) Visit Number: 2
+    Customer #8 (Pirate) Visit Length: 145.118134
+    Customer #8 (Pirate) Wait Time: 145.117950
+    Customer #8 (Pirate) Total Gold Owed: 150.770676
+    ===================
+    Customer #9 (Pirate) Number of Visits: 1
+    Customer #9 (Pirate) Visit Number: 1
+    Customer #9 (Pirate) Visit Length: 3.001289
+    Customer #9 (Pirate) Wait Time: 0.000003
+    Customer #9 (Pirate) Total Gold Owed: 3.657598
+    ===================
+    Customer #10 (Pirate) Number of Visits: 1
+    Customer #10 (Pirate) Visit Number: 1
+    Customer #10 (Pirate) Visit Length: 94.071800
+    Customer #10 (Pirate) Wait Time: 93.062683
+    Customer #10 (Pirate) Total Gold Owed: 94.956352
+    ===================
+    Customer #11 (Pirate) Number of Visits: 2
+    Customer #11 (Pirate) Visit Number: 1
+    Customer #11 (Pirate) Visit Length: 121.092812
+    Customer #11 (Pirate) Wait Time: 118.090477
+    Customer #11 (Pirate) Visit Number: 2
+    Customer #11 (Pirate) Visit Length: 46.051800
+    Customer #11 (Pirate) Wait Time: 43.051529
+    Customer #11 (Pirate) Total Gold Owed: 168.755508
+    ===================
+    Customer #12 (Pirate) Number of Visits: 1
+    Customer #12 (Pirate) Visit Number: 1
+    Customer #12 (Pirate) Visit Length: 6.002021
+    Customer #12 (Pirate) Wait Time: 5.001552
+    Customer #12 (Pirate) Total Gold Owed: 6.994691
+    ===================
+    Customer #13 (Pirate) Number of Visits: 2
+    Customer #13 (Pirate) Visit Number: 1
+    Customer #13 (Pirate) Visit Length: 1.000354
+    Customer #13 (Pirate) Wait Time: 0.000003
+    Customer #13 (Pirate) Visit Number: 2
+    Customer #13 (Pirate) Visit Length: 150.130432
+    Customer #13 (Pirate) Wait Time: 149.121521
+    Customer #13 (Pirate) Total Gold Owed: 151.540253
+    ===================
+    Customer #14 (Pirate) Number of Visits: 1
+    Customer #14 (Pirate) Visit Number: 1
+    Customer #14 (Pirate) Visit Length: 35.018734
+    Customer #14 (Pirate) Wait Time: 33.018250
+    Customer #14 (Pirate) Total Gold Owed: 35.900520
+    ===================
+    Customer #15 (Pirate) Number of Visits: 1
+    Customer #15 (Pirate) Visit Number: 1
+    Customer #15 (Pirate) Visit Length: 124.101448
+    Customer #15 (Pirate) Wait Time: 122.097801
+    Customer #15 (Pirate) Total Gold Owed: 124.477081
+    ===================
+    Customer #16 (Pirate) Number of Visits: 1
+    Customer #16 (Pirate) Visit Number: 1
+    Customer #16 (Pirate) Visit Length: 16.004440
+    Customer #16 (Pirate) Wait Time: 14.002163
+    Customer #16 (Pirate) Total Gold Owed: 16.921240
+    ===================
+    Customer #17 (Pirate) Number of Visits: 2
+    Customer #17 (Pirate) Visit Number: 1
+    Customer #17 (Pirate) Visit Length: 95.073151
+    Customer #17 (Pirate) Wait Time: 94.072235
+    Customer #17 (Pirate) Visit Number: 2
+    Customer #17 (Pirate) Visit Length: 1.000159
+    Customer #17 (Pirate) Wait Time: 0.000003
+    Customer #17 (Pirate) Total Gold Owed: 96.836967
+    ===================
+    Customer #18 (Pirate) Number of Visits: 1
+    Customer #18 (Pirate) Visit Number: 1
+    Customer #18 (Pirate) Visit Length: 17.009169
+    Customer #18 (Pirate) Wait Time: 16.007603
+    Customer #18 (Pirate) Total Gold Owed: 17.543356
+    ===================
+    Customer #19 (Pirate) Number of Visits: 1
+    Customer #19 (Pirate) Visit Number: 1
+    Customer #19 (Pirate) Visit Length: 1.000246
+    Customer #19 (Pirate) Wait Time: 0.000002
+    Customer #19 (Pirate) Total Gold Owed: 1.534683
+    ===================
+    Customer #20 (Pirate) Number of Visits: 1
+    Customer #20 (Pirate) Visit Number: 1
+    Customer #20 (Pirate) Visit Length: 83.055023
+    Customer #20 (Pirate) Wait Time: 82.054146
+    Customer #20 (Pirate) Total Gold Owed: 83.250320
+    ===================
+    Customer #21 (Pirate) Number of Visits: 1
+    Customer #21 (Pirate) Visit Number: 1
+    Customer #21 (Pirate) Visit Length: 129.102020
+    Customer #21 (Pirate) Wait Time: 129.101913
+    Customer #21 (Pirate) Total Gold Owed: 129.621674
+    ===================
+    Customer #22 (Pirate) Number of Visits: 2
+    Customer #22 (Pirate) Visit Number: 1
+    Customer #22 (Pirate) Visit Length: 38.020035
+    Customer #22 (Pirate) Wait Time: 36.019638
+    Customer #22 (Pirate) Visit Number: 2
+    Customer #22 (Pirate) Visit Length: 127.121460
+    Customer #22 (Pirate) Wait Time: 125.112167
+    Customer #22 (Pirate) Total Gold Owed: 166.866135
+    ===================
+    Customer #23 (Pirate) Number of Visits: 1
+    Customer #23 (Pirate) Visit Number: 1
+    Customer #23 (Pirate) Visit Length: 132.107712
+    Customer #23 (Pirate) Wait Time: 130.105225
+    Customer #23 (Pirate) Total Gold Owed: 132.211609
+    ===================
+    Customer #24 (Pirate) Number of Visits: 1
+    Customer #24 (Pirate) Visit Number: 1
+    Customer #24 (Pirate) Visit Length: 65.034065
+    Customer #24 (Pirate) Wait Time: 62.033604
+    Customer #24 (Pirate) Total Gold Owed: 65.075012
+    ===================
+    Customer #25 (Pirate) Number of Visits: 1
+    Customer #25 (Pirate) Visit Number: 1
+    Customer #25 (Pirate) Visit Length: 138.111633
+    Customer #25 (Pirate) Wait Time: 137.108398
+    Customer #25 (Pirate) Total Gold Owed: 138.466751
+    ===================
+    Customer #26 (Pirate) Number of Visits: 1
+    Customer #26 (Pirate) Visit Number: 1
+    Customer #26 (Pirate) Visit Length: 0.000159
+    Customer #26 (Pirate) Wait Time: 0.000002
+    Customer #26 (Pirate) Total Gold Owed: 0.412392
+    ===================
+    Customer #27 (Pirate) Number of Visits: 1
+    Customer #27 (Pirate) Visit Number: 1
+    Customer #27 (Pirate) Visit Length: 88.062813
+    Customer #27 (Pirate) Wait Time: 88.062332
+    Customer #27 (Pirate) Total Gold Owed: 88.893394
+    ===================
+    Customer #28 (Pirate) Number of Visits: 1
+    Customer #28 (Pirate) Visit Number: 1
+    Customer #28 (Pirate) Visit Length: 142.112762
+    Customer #28 (Pirate) Wait Time: 141.112091
+    Customer #28 (Pirate) Total Gold Owed: 142.847626
+    ===================
+    Customer #29 (Pirate) Number of Visits: 2
+    Customer #29 (Pirate) Visit Number: 1
+    Customer #29 (Pirate) Visit Length: 66.034569
+    Customer #29 (Pirate) Wait Time: 66.034447
+    Customer #29 (Pirate) Visit Number: 2
+    Customer #29 (Pirate) Visit Length: 98.107651
+    Customer #29 (Pirate) Wait Time: 98.107307
+    Customer #29 (Pirate) Total Gold Owed: 165.078400
+    ===================
+    Customer #30 (Pirate) Number of Visits: 1
+    Customer #30 (Pirate) Visit Number: 1
+    Customer #30 (Pirate) Visit Length: 40.021664
+    Customer #30 (Pirate) Wait Time: 40.021343
+    Customer #30 (Pirate) Total Gold Owed: 40.115273
+    ===================
+    Customer #31 (Pirate) Number of Visits: 1
+    Customer #31 (Pirate) Visit Number: 1
+    Customer #31 (Pirate) Visit Length: 100.074409
+    Customer #31 (Pirate) Wait Time: 98.073997
+    Customer #31 (Pirate) Total Gold Owed: 100.105995
+    ===================
+    Customer #32 (Pirate) Number of Visits: 1
+    Customer #32 (Pirate) Visit Number: 1
+    Customer #32 (Pirate) Visit Length: 53.032143
+    Customer #32 (Pirate) Wait Time: 51.023743
+    Customer #32 (Pirate) Total Gold Owed: 53.686470
+    ===================
+    Customer #33 (Pirate) Number of Visits: 2
+    Customer #33 (Pirate) Visit Number: 1
+    Customer #33 (Pirate) Visit Length: 75.044846
+    Customer #33 (Pirate) Wait Time: 74.039391
+    Customer #33 (Pirate) Visit Number: 2
+    Customer #33 (Pirate) Visit Length: 1.000436
+    Customer #33 (Pirate) Wait Time: 0.000003
+    Customer #33 (Pirate) Total Gold Owed: 77.568985
+    ===================
+    Customer #34 (Pirate) Number of Visits: 1
+    Customer #34 (Pirate) Visit Number: 1
+    Customer #34 (Pirate) Visit Length: 23.010658
+    Customer #34 (Pirate) Wait Time: 22.009401
+    Customer #34 (Pirate) Total Gold Owed: 23.146858
+    ===================
+    Customer #35 (Pirate) Number of Visits: 2
+    Customer #35 (Pirate) Visit Number: 1
+    Customer #35 (Pirate) Visit Length: 73.038338
+    Customer #35 (Pirate) Wait Time: 70.036041
+    Customer #35 (Pirate) Visit Number: 2
+    Customer #35 (Pirate) Visit Length: 95.099258
+    Customer #35 (Pirate) Wait Time: 92.099052
+    Customer #35 (Pirate) Total Gold Owed: 168.160034
+    ===================
+    Customer #36 (Pirate) Number of Visits: 1
+    Customer #36 (Pirate) Visit Number: 1
+    Customer #36 (Pirate) Visit Length: 25.014759
+    Customer #36 (Pirate) Wait Time: 24.010735
+    Customer #36 (Pirate) Total Gold Owed: 25.335806
+    ===================
+    Customer #37 (Pirate) Number of Visits: 1
+    Customer #37 (Pirate) Visit Number: 1
+    Customer #37 (Pirate) Visit Length: 110.087112
+    Customer #37 (Pirate) Wait Time: 107.086769
+    Customer #37 (Pirate) Total Gold Owed: 110.775543
+    ===================
+    Customer #38 (Pirate) Number of Visits: 1
+    Customer #38 (Pirate) Visit Number: 1
+    Customer #38 (Pirate) Visit Length: 106.075485
+    Customer #38 (Pirate) Wait Time: 104.075188
+    Customer #38 (Pirate) Total Gold Owed: 106.195587
+    ===================
+    Customer #39 (Pirate) Number of Visits: 2
+    Customer #39 (Pirate) Visit Number: 1
+    Customer #39 (Pirate) Visit Length: 100.074783
+    Customer #39 (Pirate) Wait Time: 100.074577
+    Customer #39 (Pirate) Visit Number: 2
+    Customer #39 (Pirate) Visit Length: 66.068993
+    Customer #39 (Pirate) Wait Time: 66.068855
+    Customer #39 (Pirate) Total Gold Owed: 166.723434
+    ===================
+    Customer #40 (Pirate) Number of Visits: 1
+    Customer #40 (Pirate) Visit Number: 1
+    Customer #40 (Pirate) Visit Length: 2.001344
+    Customer #40 (Pirate) Wait Time: 0.000003
+    Customer #40 (Pirate) Total Gold Owed: 2.397210
+    ===================
+    Customer #41 (Ninja) Number of Visits: 1
+    Customer #41 (Ninja) Visit Number: 1
+    Customer #41 (Ninja) Visit Length: 4.000077
+    Customer #41 (Ninja) Wait Time: 0.000002
+    Customer #41 (Ninja) Total Gold Owed: 4.129596
+    ===================
+    Customer #42 (Ninja) Number of Visits: 1
+    Customer #42 (Ninja) Visit Number: 1
+    Customer #42 (Ninja) Visit Length: 5.000654
+    Customer #42 (Ninja) Wait Time: 0.000002
+    Customer #42 (Ninja) Total Gold Owed: 5.228537
+    ===================
+    Customer #43 (Ninja) Number of Visits: 2
+    Customer #43 (Ninja) Visit Number: 1
+    Customer #43 (Ninja) Visit Length: 90.061829
+    Customer #43 (Ninja) Wait Time: 85.054710
+    Customer #43 (Ninja) Visit Number: 2
+    Customer #43 (Ninja) Visit Length: 5.000287
+    Customer #43 (Ninja) Wait Time: 0.000004
+    Customer #43 (Ninja) Total Gold Owed: 95.442757
+    ===================
+    Customer #44 (Ninja) Number of Visits: 1
+    Customer #44 (Ninja) Visit Number: 1
+    Customer #44 (Ninja) Visit Length: 3.001005
+    Customer #44 (Ninja) Wait Time: 0.000002
+    Customer #44 (Ninja) Total Gold Owed: 3.304972
+    ===================
+    Customer #45 (Ninja) Number of Visits: 2
+    Customer #45 (Ninja) Visit Number: 1
+    Customer #45 (Ninja) Visit Length: 2.000323
+    Customer #45 (Ninja) Wait Time: 0.000002
+    Customer #45 (Ninja) Visit Number: 2
+    Customer #45 (Ninja) Visit Length: 2.000285
+    Customer #45 (Ninja) Wait Time: 0.000007
+    Customer #45 (Ninja) Total Gold Owed: 4.113264
+    ===================
+    Customer #46 (Ninja) Number of Visits: 1
+    Customer #46 (Ninja) Visit Number: 1
+    Customer #46 (Ninja) Visit Length: 90.062622
+    Customer #46 (Ninja) Wait Time: 90.062439
+    Customer #46 (Ninja) Total Gold Owed: 90.411469
+    ===================
+    Customer #47 (Ninja) Number of Visits: 1
+    Customer #47 (Ninja) Visit Number: 1
+    Customer #47 (Ninja) Visit Length: 94.063156
+    Customer #47 (Ninja) Wait Time: 90.062920
+    Customer #47 (Ninja) Total Gold Owed: 94.988625
+    ===================
+    Customer #48 (Ninja) Number of Visits: 1
+    Customer #48 (Ninja) Visit Number: 1
+    Customer #48 (Ninja) Visit Length: 5.001389
+    Customer #48 (Ninja) Wait Time: 5.001217
+    Customer #48 (Ninja) Total Gold Owed: 5.660709
+    ===================
+    Customer #49 (Ninja) Number of Visits: 1
+    Customer #49 (Ninja) Visit Number: 1
+    Customer #49 (Ninja) Visit Length: 14.001885
+    Customer #49 (Ninja) Wait Time: 10.000838
+    Customer #49 (Ninja) Total Gold Owed: 14.852642
+    ===================
+    Customer #50 (Ninja) Number of Visits: 2
+    Customer #50 (Ninja) Visit Number: 1
+    Customer #50 (Ninja) Visit Length: 16.006824
+    Customer #50 (Ninja) Wait Time: 16.004377
+    Customer #50 (Ninja) Visit Number: 2
+    Customer #50 (Ninja) Visit Length: 158.137329
+    Customer #50 (Ninja) Wait Time: 158.137207
+    Customer #50 (Ninja) Total Gold Owed: 174.145309
+    ===================
+    Customer #51 (Ninja) Number of Visits: 1
+    Customer #51 (Ninja) Visit Number: 1
+    Customer #51 (Ninja) Visit Length: 97.071541
+    Customer #51 (Ninja) Wait Time: 97.071358
+    Customer #51 (Ninja) Total Gold Owed: 97.718399
+    ===================
+    Customer #52 (Ninja) Number of Visits: 1
+    Customer #52 (Ninja) Visit Number: 1
+    Customer #52 (Ninja) Visit Length: 22.009193
+    Customer #52 (Ninja) Wait Time: 17.009096
+    Customer #52 (Ninja) Total Gold Owed: 22.307934
+    ===================
+    Customer #53 (Ninja) Number of Visits: 2
+    Customer #53 (Ninja) Visit Number: 1
+    Customer #53 (Ninja) Visit Length: 24.010946
+    Customer #53 (Ninja) Wait Time: 23.010746
+    Customer #53 (Ninja) Visit Number: 2
+    Customer #53 (Ninja) Visit Length: 154.134216
+    Customer #53 (Ninja) Wait Time: 153.134064
+    Customer #53 (Ninja) Total Gold Owed: 179.079163
+    ===================
+    Customer #54 (Ninja) Number of Visits: 1
+    Customer #54 (Ninja) Visit Number: 1
+    Customer #54 (Ninja) Visit Length: 101.073296
+    Customer #54 (Ninja) Wait Time: 98.072708
+    Customer #54 (Ninja) Total Gold Owed: 101.663300
+    ===================
+    Customer #55 (Ninja) Number of Visits: 1
+    Customer #55 (Ninja) Visit Number: 1
+    Customer #55 (Ninja) Visit Length: 27.015717
+    Customer #55 (Ninja) Wait Time: 25.014969
+    Customer #55 (Ninja) Total Gold Owed: 27.255764
+    ===================
+    Customer #56 (Ninja) Number of Visits: 1
+    Customer #56 (Ninja) Visit Number: 1
+    Customer #56 (Ninja) Visit Length: 34.017715
+    Customer #56 (Ninja) Wait Time: 29.017452
+    Customer #56 (Ninja) Total Gold Owed: 34.586720
+    ===================
+    Customer #57 (Ninja) Number of Visits: 1
+    Customer #57 (Ninja) Visit Number: 1
+    Customer #57 (Ninja) Visit Length: 103.075287
+    Customer #57 (Ninja) Wait Time: 103.074715
+    Customer #57 (Ninja) Total Gold Owed: 103.775970
+    ===================
+    Customer #58 (Ninja) Number of Visits: 1
+    Customer #58 (Ninja) Visit Number: 1
+    Customer #58 (Ninja) Visit Length: 107.075951
+    Customer #58 (Ninja) Wait Time: 103.075508
+    Customer #58 (Ninja) Total Gold Owed: 107.776245
+    ===================
+    Customer #59 (Ninja) Number of Visits: 2
+    Customer #59 (Ninja) Visit Number: 1
+    Customer #59 (Ninja) Visit Length: 37.019020
+    Customer #59 (Ninja) Wait Time: 36.018547
+    Customer #59 (Ninja) Visit Number: 2
+    Customer #59 (Ninja) Visit Length: 142.127533
+    Customer #59 (Ninja) Wait Time: 141.126984
+    Customer #59 (Ninja) Total Gold Owed: 179.708771
+    ===================
+    Customer #60 (Ninja) Number of Visits: 2
+    Customer #60 (Ninja) Visit Number: 1
+    Customer #60 (Ninja) Visit Length: 110.087570
+    Customer #60 (Ninja) Wait Time: 109.076309
+    Customer #60 (Ninja) Visit Number: 2
+    Customer #60 (Ninja) Visit Length: 81.058662
+    Customer #60 (Ninja) Wait Time: 80.058380
+    Customer #60 (Ninja) Total Gold Owed: 191.248291
+    ===================
+    Customer #61 (Ninja) Number of Visits: 1
+    Customer #61 (Ninja) Visit Number: 1
+    Customer #61 (Ninja) Visit Length: 122.089691
+    Customer #61 (Ninja) Wait Time: 117.089058
+    Customer #61 (Ninja) Total Gold Owed: 122.742889
+    ===================
+    Customer #62 (Ninja) Number of Visits: 2
+    Customer #62 (Ninja) Visit Number: 1
+    Customer #62 (Ninja) Visit Length: 41.020714
+    Customer #62 (Ninja) Wait Time: 39.019741
+    Customer #62 (Ninja) Visit Number: 2
+    Customer #62 (Ninja) Visit Length: 140.126022
+    Customer #62 (Ninja) Wait Time: 138.125778
+    Customer #62 (Ninja) Total Gold Owed: 181.764572
+    ===================
+    Customer #63 (Ninja) Number of Visits: 1
+    Customer #63 (Ninja) Visit Number: 1
+    Customer #63 (Ninja) Visit Length: 46.021816
+    Customer #63 (Ninja) Wait Time: 41.021351
+    Customer #63 (Ninja) Total Gold Owed: 46.181038
+    ===================
+    Customer #64 (Ninja) Number of Visits: 1
+    Customer #64 (Ninja) Visit Number: 1
+    Customer #64 (Ninja) Visit Length: 114.089142
+    Customer #64 (Ninja) Wait Time: 113.087891
+    Customer #64 (Ninja) Total Gold Owed: 114.387756
+    ===================
+    Customer #65 (Ninja) Number of Visits: 1
+    Customer #65 (Ninja) Visit Number: 1
+    Customer #65 (Ninja) Visit Length: 126.097076
+    Customer #65 (Ninja) Wait Time: 125.092178
+    Customer #65 (Ninja) Total Gold Owed: 126.155373
+    ===================
+    Customer #66 (Ninja) Number of Visits: 1
+    Customer #66 (Ninja) Visit Number: 1
+    Customer #66 (Ninja) Visit Length: 59.032192
+    Customer #66 (Ninja) Wait Time: 54.031948
+    Customer #66 (Ninja) Total Gold Owed: 59.721539
+    ===================
+    Customer #67 (Ninja) Number of Visits: 1
+    Customer #67 (Ninja) Visit Number: 1
+    Customer #67 (Ninja) Visit Length: 133.101120
+    Customer #67 (Ninja) Wait Time: 128.100922
+    Customer #67 (Ninja) Total Gold Owed: 133.668533
+    ===================
+    Customer #68 (Ninja) Number of Visits: 1
+    Customer #68 (Ninja) Visit Number: 1
+    Customer #68 (Ninja) Visit Length: 64.032860
+    Customer #68 (Ninja) Wait Time: 62.032631
+    Customer #68 (Ninja) Total Gold Owed: 64.572357
+    ===================
+    Customer #69 (Ninja) Number of Visits: 1
+    Customer #69 (Ninja) Visit Number: 1
+    Customer #69 (Ninja) Visit Length: 68.033768
+    Customer #69 (Ninja) Wait Time: 67.033600
+    Customer #69 (Ninja) Total Gold Owed: 68.378021
+    ===================
+    Customer #70 (Ninja) Number of Visits: 2
+    Customer #70 (Ninja) Visit Number: 1
+    Customer #70 (Ninja) Visit Length: 52.023369
+    Customer #70 (Ninja) Wait Time: 47.022785
+    Customer #70 (Ninja) Visit Number: 2
+    Customer #70 (Ninja) Visit Length: 134.123657
+    Customer #70 (Ninja) Wait Time: 129.123535
+    Customer #70 (Ninja) Total Gold Owed: 186.990997
+    ===================
+    Customer #71 (Ninja) Number of Visits: 1
+    Customer #71 (Ninja) Visit Number: 1
+    Customer #71 (Ninja) Visit Length: 134.104492
+    Customer #71 (Ninja) Wait Time: 133.101395
+    Customer #71 (Ninja) Total Gold Owed: 134.320328
+    ===================
+    Customer #72 (Ninja) Number of Visits: 1
+    Customer #72 (Ninja) Visit Number: 1
+    Customer #72 (Ninja) Visit Length: 141.107620
+    Customer #72 (Ninja) Wait Time: 136.107254
+    Customer #72 (Ninja) Total Gold Owed: 141.761185
+    ===================
+    Customer #73 (Ninja) Number of Visits: 1
+    Customer #73 (Ninja) Visit Number: 1
+    Customer #73 (Ninja) Visit Length: 145.111267
+    Customer #73 (Ninja) Wait Time: 142.111084
+    Customer #73 (Ninja) Total Gold Owed: 145.404633
+    ===================
+    Customer #74 (Ninja) Number of Visits: 2
+    Customer #74 (Ninja) Visit Number: 1
+    Customer #74 (Ninja) Visit Length: 149.118439
+    Customer #74 (Ninja) Wait Time: 146.112183
+    Customer #74 (Ninja) Visit Number: 2
+    Customer #74 (Ninja) Visit Length: 3.000384
+    Customer #74 (Ninja) Wait Time: 0.000004
+    Customer #74 (Ninja) Total Gold Owed: 152.747223
+    ===================
+    Customer #75 (Ninja) Number of Visits: 2
+    Customer #75 (Ninja) Visit Number: 1
+    Customer #75 (Ninja) Visit Length: 152.118942
+    Customer #75 (Ninja) Wait Time: 149.118729
+    Customer #75 (Ninja) Visit Number: 2
+    Customer #75 (Ninja) Visit Length: 3.001016
+    Customer #75 (Ninja) Wait Time: 0.000003
+    Customer #75 (Ninja) Total Gold Owed: 156.432449
+    ===================
+    Customer #76 (Ninja) Number of Visits: 1
+    Customer #76 (Ninja) Visit Number: 1
+    Customer #76 (Ninja) Visit Length: 161.121078
+    Customer #76 (Ninja) Wait Time: 156.120956
+    Customer #76 (Ninja) Total Gold Owed: 161.513458
+    ===================
+    Customer #77 (Ninja) Number of Visits: 2
+    Customer #77 (Ninja) Visit Number: 1
+    Customer #77 (Ninja) Visit Length: 164.131104
+    Customer #77 (Ninja) Wait Time: 162.130127
+    Customer #77 (Ninja) Visit Number: 2
+    Customer #77 (Ninja) Visit Length: 29.017244
+    Customer #77 (Ninja) Wait Time: 27.017044
+    Customer #77 (Ninja) Total Gold Owed: 194.660995
+    ===================
+    Customer #78 (Ninja) Number of Visits: 1
+    Customer #78 (Ninja) Visit Number: 1
+    Customer #78 (Ninja) Visit Length: 167.141083
+    Customer #78 (Ninja) Wait Time: 166.140610
+    Customer #78 (Ninja) Total Gold Owed: 167.244568
+    ===================
+    Customer #79 (Ninja) Number of Visits: 2
+    Customer #79 (Ninja) Visit Number: 1
+    Customer #79 (Ninja) Visit Length: 72.035385
+    Customer #79 (Ninja) Wait Time: 68.034042
+    Customer #79 (Ninja) Visit Number: 2
+    Customer #79 (Ninja) Visit Length: 118.111656
+    Customer #79 (Ninja) Wait Time: 114.111488
+    Customer #79 (Ninja) Total Gold Owed: 190.524170
+    ===================
+    Customer #80 (Ninja) Number of Visits: 1
+    Customer #80 (Ninja) Visit Number: 1
+    Customer #80 (Ninja) Visit Length: 76.038704
+    Customer #80 (Ninja) Wait Time: 75.037956
+    Customer #80 (Ninja) Total Gold Owed: 76.736900
+    ===================
+    Customer #81 (Ninja) Number of Visits: 2
+    Customer #81 (Ninja) Visit Number: 1
+    Customer #81 (Ninja) Visit Length: 78.044762
+    Customer #81 (Ninja) Wait Time: 77.044502
+    Customer #81 (Ninja) Visit Number: 2
+    Customer #81 (Ninja) Visit Length: 113.103584
+    Customer #81 (Ninja) Wait Time: 112.102280
+    Customer #81 (Ninja) Total Gold Owed: 191.318390
+    ===================
+    Customer #82 (Ninja) Number of Visits: 1
+    Customer #82 (Ninja) Visit Number: 1
+    Customer #82 (Ninja) Visit Length: 168.142700
+    Customer #82 (Ninja) Wait Time: 167.141785
+    Customer #82 (Ninja) Total Gold Owed: 168.654037
+    ===================
+    Customer #83 (Ninja) Number of Visits: 2
+    Customer #83 (Ninja) Visit Number: 1
+    Customer #83 (Ninja) Visit Length: 81.052422
+    Customer #83 (Ninja) Wait Time: 80.045204
+    Customer #83 (Ninja) Visit Number: 2
+    Customer #83 (Ninja) Visit Length: 111.096291
+    Customer #83 (Ninja) Wait Time: 110.096115
+    Customer #83 (Ninja) Total Gold Owed: 192.845825
+    ===================
+    Customer #84 (Ninja) Number of Visits: 1
+    Customer #84 (Ninja) Visit Number: 1
+    Customer #84 (Ninja) Visit Length: 173.143723
+    Customer #84 (Ninja) Wait Time: 171.143158
+    Customer #84 (Ninja) Total Gold Owed: 173.390518
+    ===================
+    Customer #85 (Ninja) Number of Visits: 1
+    Customer #85 (Ninja) Visit Number: 1
+    Customer #85 (Ninja) Visit Length: 85.053246
+    Customer #85 (Ninja) Wait Time: 83.052994
+    Customer #85 (Ninja) Total Gold Owed: 85.959328
+
+    ===================
+      Shop Statistics
+    ===================
+
+    Time that teams were busy: 236.522160
+    Time that teams were free: 20.378229
+    Average Queue Length: 30.000000
+    Gross Revenue: 8493.308594
+    Gold Per Visit: 76.516294
+    Total Profit: 8473.308594
