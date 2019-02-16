@@ -1,0 +1,590 @@
+----- Question Phase 1 -----
+Assume that the Minnesotan drivers follow the convention that whoever arrives
+at the intersection first proceeds first. Using the language of synchronization primitives,
+describe the way this intersection is controlled.
+In what ways is this method suboptimal?
+
+----- Answer Phase 1 -----
+The way the intersection is controlled is serialization.
+In the simplest model, computers execute one instruction after another in sequence. In this model,
+synchronization is trivial; we can tell the order of events by looking at the program. If Statement
+A comes before Statement B, it will be executed first. This method is suboptimal because it does
+not improve the traffic in the most efficient way, thus not enough parallelism for muti-thread
+programming.
+
+
+
+----- Question Phase 2-----
+The governor allows the Massachusetts drivers to return and sends the Minnesotans back home. Assume these drivers do
+not follow the convention described above. In particular, Massachusetts drivers are happy to enter
+an intersection, even if only the front bumper of their car will fit. In what instances can this mindset produce a deadlock? (It will
+be helpful to think of this in terms of the model we are using instead of trying to visualize an actual intersection).
+How can such a deadlock be prevented?
+
+----- Answer Phase 2 -----
+The deadlock can occur in situations like if four cars trying to go straight and all acquire the first
+block of intersection they need, then this is a deadlock. They all take some resource and waits on some
+other resources. The deadlock can be prevented by preventing any of the four required condition for deadlock
+to occur. In my implementation, I used hierarchy for locks to prevent circular waits.
+
+
+
+----- How our solution meets the requirements -----
+The car thread will be assigned a random approach and turn direction.
+This thread will sleep for sometime randomly and then approach the intersection.
+It only approaches if it is the first in the queue. Then it will enter the
+intersection. Then leave the intersection. If it cannot approach or enter, it will keep
+checking to see if it can enter. This ensures that only one car can be in the intersection at a time.
+
+The intersection program prevents a deadlock by using a hierarchy for
+locks. This way, we are able to prevent circular waits.
+Particularly, northWest > southWest > southEast > northEast, where ">"indicates
+lock hierarchy. The locks are always going to be locked or unlocked in this order. This also helps to
+improve the traffic flow, while not allowing anyone to starve someone else.
+
+The fairness is another point we want to address. I used four separate queues to
+store the order for each direction. Because it is a queue, implemented using a
+linked list, there is no car passing another in the queue. New car approaching will
+be added at the end of queue. Four queues before approaching create some sense of
+fairness. Because the car will go if they are at the end of each direction's queue.
+In this sense, it is fair that if they are at the end of queue, they will try to
+approach. The mutex and thread itself should provide some randomness also, because
+it takes time in the while loop to try entering the intersection and leave. It is thus
+hard for one direction to always get in the intersection. Additionally, this solution helps
+maximize parallelism and using the intersection to its fullest potential.
+
+
+
+----- Testing (Sample Runs) -----
+We provide 3 sample runs to demonstrate how our program works, as well as a concise explanation as to why
+our solution works.
+
+----- Executive Summary of Sample Runs -----
+We have 3 sample runs with 20, 50, and 100 cars. Notice that there are never two cars in the same portion of the
+intersection at the same time. Additionally, cars are not deprived of a turn, and everyone makes a turn successfully.
+The solution also provides fairness, and utilises the intersection to its full potential
+
+----- Sample Run #1 -----
+
+    20 cars(threads) are created:
+
+    Car[14] is approaching with approach direction East and turn Straight
+    Car[14] is entering from direction East and turning Straight
+    Car[12] is approaching with approach direction North and turn Straight
+    Car[14] is leaving the intersection
+    Car[12] is entering from direction North and turning Straight
+    Car[13] is approaching with approach direction North and turn Right
+    Car[0] is approaching with approach direction North and turn Right
+    Car[12] is leaving the intersection
+    Car[13] is entering from direction North and turning Right
+    Car[13] is leaving the intersection
+    Car[0] is entering from direction North and turning Right
+    Car[0] is leaving the intersection
+    Car[19] is approaching with approach direction West and turn Left
+    Car[19] is entering from direction West and turning Left
+    Car[8] is approaching with approach direction South and turn Right
+    Car[3] is approaching with approach direction East and turn Right
+    Car[19] is leaving the intersection
+    Car[8] is entering from direction South and turning Right
+    Car[3] is entering from direction East and turning Right
+    Car[2] is approaching with approach direction South and turn Straight
+    Car[8] is leaving the intersection
+    Car[3] is leaving the intersection
+    Car[2] is entering from direction South and turning Straight
+    Car[2] is leaving the intersection
+    Car[5] is approaching with approach direction South and turn Left
+    Car[5] is entering from direction South and turning Left
+    Car[17] is approaching with approach direction West and turn Straight
+    Car[5] is leaving the intersection
+    Car[17] is entering from direction West and turning Straight
+    Car[18] is approaching with approach direction South and turn Right
+    Car[17] is leaving the intersection
+    Car[18] is entering from direction South and turning Right
+    Car[18] is leaving the intersection
+    Car[11] is approaching with approach direction South and turn Right
+    Car[11] is entering from direction South and turning Right
+    Car[11] is leaving the intersection
+    Car[15] is approaching with approach direction West and turn Right
+    Car[15] is entering from direction West and turning Right
+    Car[15] is leaving the intersection
+    Car[7] is approaching with approach direction East and turn Left
+    Car[7] is entering from direction East and turning Left
+    Car[9] is approaching with approach direction West and turn Left
+    Car[7] is leaving the intersection
+    Car[9] is entering from direction West and turning Left
+    Car[6] is approaching with approach direction East and turn Straight
+    Car[4] is approaching with approach direction West and turn Left
+    Car[9] is leaving the intersection
+    Car[6] is entering from direction East and turning Straight
+    Car[6] is leaving the intersection
+    Car[10] is approaching with approach direction South and turn Straight
+    Car[16] is approaching with approach direction South and turn Left
+    Car[4] is entering from direction West and turning Left
+    Car[1] is approaching with approach direction South and turn Straight
+    Car[4] is leaving the intersection
+    Car[10] is entering from direction South and turning Straight
+    Car[10] is leaving the intersection
+    Car[16] is entering from direction South and turning Left
+    Car[16] is leaving the intersection
+    Car[1] is entering from direction South and turning Straight
+    Car[1] is leaving the intersection
+
+----- Sample Run #2 -----
+
+    50 cars(threads) are created:
+
+    Car[3] is approaching with approach direction East and turn Left
+    Car[3] is entering from direction East and turning Left
+    Car[15] is approaching with approach direction East and turn Straight
+    Car[28] is approaching with approach direction West and turn Right
+    Car[43] is approaching with approach direction South and turn Straight
+    Car[48] is approaching with approach direction West and turn Right
+    Car[12] is approaching with approach direction North and turn Straight
+    Car[3] is leaving the intersection
+    Car[15] is entering from direction East and turning Straight
+    Car[28] is entering from direction West and turning Right
+    Car[33] is approaching with approach direction North and turn Right
+    Car[4] is approaching with approach direction West and turn Right
+    Car[13] is approaching with approach direction North and turn Right
+    Car[28] is leaving the intersection
+    Car[48] is entering from direction West and turning Right
+    Car[5] is approaching with approach direction North and turn Right
+    Car[15] is leaving the intersection
+    Car[43] is entering from direction South and turning Straight
+    Car[48] is leaving the intersection
+    Car[4] is entering from direction West and turning Right
+    Car[45] is approaching with approach direction North and turn Right
+    Car[1] is approaching with approach direction East and turn Left
+    Car[4] is leaving the intersection
+    Car[12] is entering from direction North and turning Straight
+    Car[43] is leaving the intersection
+    Car[36] is approaching with approach direction North and turn Straight
+    Car[42] is approaching with approach direction North and turn Straight
+    Car[12] is leaving the intersection
+    Car[27] is approaching with approach direction South and turn Right
+    Car[27] is entering from direction South and turning Right
+    Car[33] is entering from direction North and turning Right
+    Car[34] is approaching with approach direction East and turn Left
+    Car[27] is leaving the intersection
+    Car[33] is leaving the intersection
+    Car[13] is entering from direction North and turning Right
+    Car[40] is approaching with approach direction West and turn Left
+    Car[40] is entering from direction West and turning Left
+    Car[20] is approaching with approach direction West and turn Left
+    Car[13] is leaving the intersection
+    Car[5] is entering from direction North and turning Right
+    Car[49] is approaching with approach direction West and turn Straight
+    Car[5] is leaving the intersection
+    Car[45] is entering from direction North and turning Right
+    Car[8] is approaching with approach direction South and turn Right
+    Car[22] is approaching with approach direction East and turn Right
+    Car[40] is leaving the intersection
+    Car[8] is entering from direction South and turning Right
+    Car[22] is entering from direction East and turning Right
+    Car[45] is leaving the intersection
+    Car[8] is leaving the intersection
+    Car[22] is leaving the intersection
+    Car[20] is entering from direction West and turning Left
+    Car[23] is approaching with approach direction South and turn Straight
+    Car[46] is approaching with approach direction West and turn Left
+    Car[31] is approaching with approach direction East and turn Left
+    Car[20] is leaving the intersection
+    Car[23] is entering from direction South and turning Straight
+    Car[14] is approaching with approach direction South and turn Left
+    Car[18] is approaching with approach direction West and turn Straight
+    Car[23] is leaving the intersection
+    Car[49] is entering from direction West and turning Straight
+    Car[26] is approaching with approach direction East and turn Left
+    Car[41] is approaching with approach direction West and turn Right
+    Car[25] is approaching with approach direction West and turn Right
+    Car[19] is approaching with approach direction South and turn Right
+    Car[47] is approaching with approach direction East and turn Right
+    Car[47] is entering from direction East and turning Right
+    Car[49] is leaving the intersection
+    Car[19] is entering from direction South and turning Right
+    Car[47] is leaving the intersection
+    Car[1] is entering from direction East and turning Left
+    Car[19] is leaving the intersection
+    Car[38] is approaching with approach direction East and turn Right
+    Car[38] is entering from direction East and turning Right
+    Car[1] is leaving the intersection
+    Car[11] is approaching with approach direction South and turn Right
+    Car[38] is leaving the intersection
+    Car[46] is entering from direction West and turning Left
+    Car[16] is approaching with approach direction West and turn Right
+    Car[46] is leaving the intersection
+    Car[11] is entering from direction South and turning Right
+    Car[0] is approaching with approach direction North and turn Straight
+    Car[11] is leaving the intersection
+    Car[18] is entering from direction West and turning Straight
+    Car[7] is approaching with approach direction East and turn Left
+    Car[9] is approaching with approach direction West and turn Left
+    Car[18] is leaving the intersection
+    Car[30] is approaching with approach direction East and turn Left
+    Car[41] is entering from direction West and turning Right
+    Car[41] is leaving the intersection
+    Car[6] is approaching with approach direction East and turn Straight
+    Car[25] is entering from direction West and turning Right
+    Car[21] is approaching with approach direction West and turn Left
+    Car[25] is leaving the intersection
+    Car[36] is entering from direction North and turning Straight
+    Car[36] is leaving the intersection
+    Car[16] is entering from direction West and turning Right
+    Car[44] is approaching with approach direction West and turn Straight
+    Car[24] is approaching with approach direction South and turn Straight
+    Car[24] is entering from direction South and turning Straight
+    Car[32] is approaching with approach direction North and turn Right
+    Car[39] is approaching with approach direction South and turn Straight
+    Car[10] is approaching with approach direction South and turn Straight
+    Car[16] is leaving the intersection
+    Car[17] is approaching with approach direction South and turn Left
+    Car[37] is approaching with approach direction South and turn Right
+    Car[29] is approaching with approach direction South and turn Right
+    Car[2] is approaching with approach direction East and turn Left
+    Car[24] is leaving the intersection
+    Car[35] is approaching with approach direction North and turn Right
+    Car[39] is entering from direction South and turning Straight
+    Car[39] is leaving the intersection
+    Car[10] is entering from direction South and turning Straight
+    Car[10] is leaving the intersection
+    Car[9] is entering from direction West and turning Left
+    Car[9] is leaving the intersection
+    Car[21] is entering from direction West and turning Left
+    Car[21] is leaving the intersection
+    Car[29] is entering from direction South and turning Right
+    Car[29] is leaving the intersection
+    Car[37] is entering from direction South and turning Right
+    Car[37] is leaving the intersection
+    Car[44] is entering from direction West and turning Straight
+    Car[44] is leaving the intersection
+    Car[42] is entering from direction North and turning Straight
+    Car[42] is leaving the intersection
+    Car[34] is entering from direction East and turning Left
+    Car[34] is leaving the intersection
+    Car[31] is entering from direction East and turning Left
+    Car[31] is leaving the intersection
+    Car[14] is entering from direction South and turning Left
+    Car[14] is leaving the intersection
+    Car[26] is entering from direction East and turning Left
+    Car[26] is leaving the intersection
+    Car[0] is entering from direction North and turning Straight
+    Car[7] is entering from direction East and turning Left
+    Car[0] is leaving the intersection
+    Car[7] is leaving the intersection
+    Car[30] is entering from direction East and turning Left
+    Car[30] is leaving the intersection
+    Car[6] is entering from direction East and turning Straight
+    Car[6] is leaving the intersection
+    Car[32] is entering from direction North and turning Right
+    Car[32] is leaving the intersection
+    Car[17] is entering from direction South and turning Left
+    Car[17] is leaving the intersection
+    Car[2] is entering from direction East and turning Left
+    Car[2] is leaving the intersection
+    Car[35] is entering from direction North and turning Right
+    Car[35] is leaving the intersection
+
+----- Sample Run #3 -----
+
+    100 cars(threads) are created:
+
+    Car[63] is approaching with approach direction East and turn Left
+    Car[63] is entering from direction East and turning Left
+    Car[55] is approaching with approach direction South and turn Straight
+    Car[15] is approaching with approach direction North and turn Left
+    Car[1] is approaching with approach direction South and turn Straight
+    Car[40] is approaching with approach direction West and turn Right
+    Car[26] is approaching with approach direction East and turn Straight
+    Car[68] is approaching with approach direction East and turn Left
+    Car[3] is approaching with approach direction East and turn Straight
+    Car[23] is approaching with approach direction North and turn Straight
+    Car[61] is approaching with approach direction West and turn Right
+    Car[63] is leaving the intersection
+    Car[45] is approaching with approach direction North and turn Right
+    Car[40] is entering from direction West and turning Right
+    Car[55] is entering from direction South and turning Straight
+    Car[58] is approaching with approach direction West and turn Right
+    Car[24] is approaching with approach direction North and turn Right
+    Car[84] is approaching with approach direction North and turn Straight
+    Car[12] is approaching with approach direction West and turn Right
+    Car[35] is approaching with approach direction North and turn Right
+    Car[40] is leaving the intersection
+    Car[61] is entering from direction West and turning Right
+    Car[55] is leaving the intersection
+    Car[1] is entering from direction South and turning Straight
+    Car[57] is approaching with approach direction North and turn Right
+    Car[61] is leaving the intersection
+    Car[93] is approaching with approach direction South and turn Straight
+    Car[65] is approaching with approach direction East and turn Left
+    Car[48] is approaching with approach direction North and turn Straight
+    Car[89] is approaching with approach direction North and turn Right
+    Car[95] is approaching with approach direction West and turn Right
+    Car[5] is approaching with approach direction West and turn Left
+    Car[15] is entering from direction North and turning Left
+    Car[1] is leaving the intersection
+    Car[0] is approaching with approach direction South and turn Left
+    Car[11] is approaching with approach direction South and turn Left
+    Car[15] is leaving the intersection
+    Car[54] is approaching with approach direction North and turn Straight
+    Car[39] is approaching with approach direction South and turn Right
+    Car[39] is entering from direction South and turning Right
+    Car[52] is approaching with approach direction West and turn Left
+    Car[31] is approaching with approach direction West and turn Left
+    Car[62] is approaching with approach direction West and turn Straight
+    Car[33] is approaching with approach direction East and turn Right
+    Car[33] is entering from direction East and turning Right
+    Car[77] is approaching with approach direction North and turn Left
+    Car[39] is leaving the intersection
+    Car[46] is approaching with approach direction East and turn Left
+    Car[34] is approaching with approach direction South and turn Straight
+    Car[19] is approaching with approach direction South and turn Right
+    Car[58] is entering from direction West and turning Right
+    Car[59] is approaching with approach direction West and turn Left
+    Car[73] is approaching with approach direction South and turn Straight
+    Car[71] is approaching with approach direction North and turn Left
+    Car[33] is leaving the intersection
+    Car[34] is entering from direction South and turning Straight
+    Car[79] is approaching with approach direction South and turn Straight
+    Car[81] is approaching with approach direction East and turn Straight
+    Car[80] is approaching with approach direction East and turn Left
+    Car[85] is approaching with approach direction West and turn Left
+    Car[43] is approaching with approach direction East and turn Left
+    Car[83] is approaching with approach direction North and turn Right
+    Car[88] is approaching with approach direction West and turn Left
+    Car[92] is approaching with approach direction South and turn Left
+    Car[58] is leaving the intersection
+    Car[25] is approaching with approach direction South and turn Left
+    Car[75] is approaching with approach direction East and turn Right
+    Car[34] is leaving the intersection
+    Car[19] is entering from direction South and turning Right
+    Car[75] is entering from direction East and turning Right
+    Car[99] is approaching with approach direction South and turn Right
+    Car[12] is entering from direction West and turning Right
+    Car[98] is approaching with approach direction North and turn Straight
+    Car[10] is approaching with approach direction West and turn Left
+    Car[19] is leaving the intersection
+    Car[29] is approaching with approach direction West and turn Straight
+    Car[73] is entering from direction South and turning Straight
+    Car[75] is leaving the intersection
+    Car[12] is leaving the intersection
+    Car[95] is entering from direction West and turning Right
+    Car[78] is approaching with approach direction North and turn Left
+    Car[74] is approaching with approach direction South and turn Left
+    Car[38] is approaching with approach direction East and turn Left
+    Car[53] is approaching with approach direction West and turn Right
+    Car[37] is approaching with approach direction West and turn Right
+    Car[30] is approaching with approach direction South and turn Right
+    Car[30] is entering from direction South and turning Right
+    Car[60] is approaching with approach direction East and turn Right
+    Car[60] is entering from direction East and turning Right
+    Car[73] is leaving the intersection
+    Car[95] is leaving the intersection
+    Car[30] is leaving the intersection
+    Car[96] is approaching with approach direction North and turn Left
+    Car[60] is leaving the intersection
+    Car[93] is entering from direction South and turning Straight
+    Car[8] is approaching with approach direction West and turn Right
+    Car[50] is approaching with approach direction East and turn Right
+    Car[82] is approaching with approach direction North and turn Right
+    Car[50] is entering from direction East and turning Right
+    Car[76] is approaching with approach direction West and turn Right
+    Car[22] is approaching with approach direction South and turn Right
+    Car[16] is approaching with approach direction East and turn Right
+    Car[27] is approaching with approach direction West and turn Right
+    Car[22] is entering from direction South and turning Right
+    Car[50] is leaving the intersection
+    Car[91] is approaching with approach direction North and turn Left
+    Car[93] is leaving the intersection
+    Car[66] is approaching with approach direction North and turn Straight
+    Car[22] is leaving the intersection
+    Car[18] is approaching with approach direction East and turn Left
+    Car[20] is approaching with approach direction West and turn Left
+    Car[94] is approaching with approach direction South and turn Right
+    Car[2] is approaching with approach direction West and turn Straight
+    Car[13] is approaching with approach direction North and turn Right
+    Car[16] is entering from direction East and turning Right
+    Car[6] is approaching with approach direction East and turn Straight
+    Car[4] is approaching with approach direction East and turn Straight
+    Car[42] is approaching with approach direction East and turn Left
+    Car[16] is leaving the intersection
+    Car[72] is approaching with approach direction South and turn Straight
+    Car[79] is entering from direction South and turning Straight
+    Car[17] is approaching with approach direction East and turn Straight
+    Car[69] is approaching with approach direction South and turn Right
+    Car[32] is approaching with approach direction West and turn Left
+    Car[56] is approaching with approach direction West and turn Straight
+    Car[36] is approaching with approach direction South and turn Straight
+    Car[44] is approaching with approach direction North and turn Right
+    Car[21] is approaching with approach direction South and turn Straight
+    Car[67] is approaching with approach direction North and turn Right
+    Car[7] is approaching with approach direction West and turn Right
+    Car[9] is approaching with approach direction North and turn Right
+    Car[14] is approaching with approach direction East and turn Right
+    Car[14] is entering from direction East and turning Right
+    Car[51] is approaching with approach direction South and turn Straight
+    Car[70] is approaching with approach direction East and turn Left
+    Car[28] is approaching with approach direction South and turn Left
+    Car[49] is approaching with approach direction South and turn Right
+    Car[41] is approaching with approach direction South and turn Right
+    Car[64] is approaching with approach direction East and turn Left
+    Car[47] is approaching with approach direction North and turn Right
+    Car[79] is leaving the intersection
+    Car[87] is approaching with approach direction North and turn Right
+    Car[86] is approaching with approach direction North and turn Straight
+    Car[90] is approaching with approach direction East and turn Left
+    Car[97] is approaching with approach direction South and turn Right
+    Car[14] is leaving the intersection
+    Car[5] is entering from direction West and turning Left
+    Car[5] is leaving the intersection
+    Car[54] is entering from direction North and turning Straight
+    Car[99] is entering from direction South and turning Right
+    Car[99] is leaving the intersection
+    Car[94] is entering from direction South and turning Right
+    Car[54] is leaving the intersection
+    Car[72] is entering from direction South and turning Straight
+    Car[94] is leaving the intersection
+    Car[72] is leaving the intersection
+    Car[69] is entering from direction South and turning Right
+    Car[69] is leaving the intersection
+    Car[36] is entering from direction South and turning Straight
+    Car[36] is leaving the intersection
+    Car[21] is entering from direction South and turning Straight
+    Car[21] is leaving the intersection
+    Car[51] is entering from direction South and turning Straight
+    Car[51] is leaving the intersection
+    Car[49] is entering from direction South and turning Right
+    Car[49] is leaving the intersection
+    Car[41] is entering from direction South and turning Right
+    Car[41] is leaving the intersection
+    Car[97] is entering from direction South and turning Right
+    Car[52] is entering from direction West and turning Left
+    Car[97] is leaving the intersection
+    Car[52] is leaving the intersection
+    Car[31] is entering from direction West and turning Left
+    Car[31] is leaving the intersection
+    Car[62] is entering from direction West and turning Straight
+    Car[62] is leaving the intersection
+    Car[59] is entering from direction West and turning Left
+    Car[59] is leaving the intersection
+    Car[85] is entering from direction West and turning Left
+    Car[85] is leaving the intersection
+    Car[88] is entering from direction West and turning Left
+    Car[88] is leaving the intersection
+    Car[10] is entering from direction West and turning Left
+    Car[10] is leaving the intersection
+    Car[29] is entering from direction West and turning Straight
+    Car[29] is leaving the intersection
+    Car[53] is entering from direction West and turning Right
+    Car[53] is leaving the intersection
+    Car[37] is entering from direction West and turning Right
+    Car[37] is leaving the intersection
+    Car[8] is entering from direction West and turning Right
+    Car[8] is leaving the intersection
+    Car[76] is entering from direction West and turning Right
+    Car[76] is leaving the intersection
+    Car[27] is entering from direction West and turning Right
+    Car[27] is leaving the intersection
+    Car[20] is entering from direction West and turning Left
+    Car[20] is leaving the intersection
+    Car[2] is entering from direction West and turning Straight
+    Car[2] is leaving the intersection
+    Car[32] is entering from direction West and turning Left
+    Car[32] is leaving the intersection
+    Car[56] is entering from direction West and turning Straight
+    Car[56] is leaving the intersection
+    Car[7] is entering from direction West and turning Right
+    Car[7] is leaving the intersection
+    Car[68] is entering from direction East and turning Left
+    Car[68] is leaving the intersection
+    Car[3] is entering from direction East and turning Straight
+    Car[3] is leaving the intersection
+    Car[23] is entering from direction North and turning Straight
+    Car[23] is leaving the intersection
+    Car[45] is entering from direction North and turning Right
+    Car[45] is leaving the intersection
+    Car[24] is entering from direction North and turning Right
+    Car[24] is leaving the intersection
+    Car[84] is entering from direction North and turning Straight
+    Car[35] is entering from direction North and turning Right
+    Car[84] is leaving the intersection
+    Car[35] is leaving the intersection
+    Car[57] is entering from direction North and turning Right
+    Car[57] is leaving the intersection
+    Car[65] is entering from direction East and turning Left
+    Car[65] is leaving the intersection
+    Car[48] is entering from direction North and turning Straight
+    Car[48] is leaving the intersection
+    Car[89] is entering from direction North and turning Right
+    Car[89] is leaving the intersection
+    Car[0] is entering from direction South and turning Left
+    Car[0] is leaving the intersection
+    Car[11] is entering from direction South and turning Left
+    Car[11] is leaving the intersection
+    Car[77] is entering from direction North and turning Left
+    Car[77] is leaving the intersection
+    Car[46] is entering from direction East and turning Left
+    Car[46] is leaving the intersection
+    Car[71] is entering from direction North and turning Left
+    Car[71] is leaving the intersection
+    Car[26] is entering from direction East and turning Straight
+    Car[26] is leaving the intersection
+    Car[81] is entering from direction East and turning Straight
+    Car[81] is leaving the intersection
+    Car[80] is entering from direction East and turning Left
+    Car[80] is leaving the intersection
+    Car[43] is entering from direction East and turning Left
+    Car[43] is leaving the intersection
+    Car[83] is entering from direction North and turning Right
+    Car[83] is leaving the intersection
+    Car[92] is entering from direction South and turning Left
+    Car[25] is entering from direction South and turning Left
+    Car[92] is leaving the intersection
+    Car[25] is leaving the intersection
+    Car[98] is entering from direction North and turning Straight
+    Car[78] is entering from direction North and turning Left
+    Car[98] is leaving the intersection
+    Car[78] is leaving the intersection
+    Car[74] is entering from direction South and turning Left
+    Car[74] is leaving the intersection
+    Car[38] is entering from direction East and turning Left
+    Car[38] is leaving the intersection
+    Car[96] is entering from direction North and turning Left
+    Car[82] is entering from direction North and turning Right
+    Car[96] is leaving the intersection
+    Car[82] is leaving the intersection
+    Car[91] is entering from direction North and turning Left
+    Car[66] is entering from direction North and turning Straight
+    Car[91] is leaving the intersection
+    Car[66] is leaving the intersection
+    Car[18] is entering from direction East and turning Left
+    Car[18] is leaving the intersection
+    Car[13] is entering from direction North and turning Right
+    Car[13] is leaving the intersection
+    Car[6] is entering from direction East and turning Straight
+    Car[6] is leaving the intersection
+    Car[4] is entering from direction East and turning Straight
+    Car[4] is leaving the intersection
+    Car[42] is entering from direction East and turning Left
+    Car[42] is leaving the intersection
+    Car[17] is entering from direction East and turning Straight
+    Car[17] is leaving the intersection
+    Car[44] is entering from direction North and turning Right
+    Car[44] is leaving the intersection
+    Car[67] is entering from direction North and turning Right
+    Car[67] is leaving the intersection
+    Car[9] is entering from direction North and turning Right
+    Car[9] is leaving the intersection
+    Car[70] is entering from direction East and turning Left
+    Car[70] is leaving the intersection
+    Car[28] is entering from direction South and turning Left
+    Car[28] is leaving the intersection
+    Car[64] is entering from direction East and turning Left
+    Car[64] is leaving the intersection
+    Car[47] is entering from direction North and turning Right
+    Car[47] is leaving the intersection
+    Car[87] is entering from direction North and turning Right
+    Car[87] is leaving the intersection
+    Car[86] is entering from direction North and turning Straight
+    Car[86] is leaving the intersection
+    Car[90] is entering from direction East and turning Left
+    Car[90] is leaving the intersection

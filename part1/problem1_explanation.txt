@@ -10,8 +10,8 @@ both types get an even amount of time in the costume shop. Additionally, the sho
 only 1 type at a time. In other words, the costume shop will only be costuming either ninjas or pirates at the
 same time. Pirates and ninjas enter and exit through different doors, and this is how we provide mutual exclusion.
 
------ Sample Runs -----
-I provided 5 sample runs, each with different input to test the program thoroughly. Each one has an explanation as to why
+----- Testing (Sample Runs) -----
+I provided 3 sample runs, each with different input to test the program thoroughly. Each one has an explanation as to why
 the costume shop is efficient and synchronized. Scroll down to see the sample runs.
 
 ----- Executive Summary of Sample Runs -----
